@@ -1,124 +1,88 @@
-/**
- * Created by paavum on 27.04.17.
- */
-class moodler {
+"use strict";
 
-    constructor(hostDiv) {
-        this.this._go = go.GraphObject.make;
-        this._diagram = $(go.Diagram, hostDiv, {
+var $go = go.GraphObject.make;
+var diagram;
+
+var Moodler = {
+    moodler_init: function (moodlerDiv) {
+        diagram = $go(go.Diagram, moodlerDiv, {
             initialContentAlignment: go.Spot.Center, // center Diagram contents
             "undoManager.isEnabled": true // enable Ctrl-Z to undo and Ctrl-Y to redo
         });
-    }
-
-    /**
-     * Creates a library of template shapes to be used in the diagrams. Namely the Entity shape and the different \\
-     * components of the links
-     * @private
-     */
-    _setupTemplates() {
-
-        let template_entity = this._go(go.Node, new go.Binding("location", "location", go.Point.parse), go.Panel.Vertical,
-            this._go(go.Panel, "Auto",
-                {stretch: go.GraphObject.Fill},
-                this._go(go.Shape, "Rectangle", {fill: "white"}),
-                this._go(go.TextBlock, new go.Binding("text", "entityName"), {margin: 5})
-            ),
-            this._go(go.Panel, "Auto",
-                {stretch: go.GraphObject.Fill},
-                this._go(go.Shape, "Rectangle", {fill: "white"}),
-                this._go(go.Panel, "Vertical", {margin: 4, defaultAlignment: go.Spot.Left},
-                    new go.Binding("itemArray", "properties"),
-                    {
-                        itemTemplate: this._go(go.Panel, "Horizontal", {margin: 0.5},
-                            this._go(go.TextBlock, new go.Binding("text", "propertyName")),
-                            this._go(go.TextBlock, " : "),
-                            this._go(go.TextBlock, new go.Binding("text", "propertyType")),
-                            // end of itemTemplate
-                        )
-                    })
-            )
-        );
-
-        let template_relationshipDiamond = this._go(go.Node, go.Panel.Auto, new go.Binding("location", "location"),
-            this._go(go.Shape, "Diamond", {fill: "white", margin: 2, minSize: new go.Size(20, 20)}),
-            this._go(go.TextBlock, {margin: 2}, new go.Binding("text", "relationshipName"))
-        );
-
-        let template_generalizationSpecializationCircle = this._go(go.Node, go.Panel.Auto, new go.Binding("location", "location"),
-            this._go(go.Shape, "Circle", {fill: "white", margin: 2, minSize: new go.Size(20, 20)}),
-            this._go(go.TextBlock, {margin: 2}, new go.Binding("text", "relationshipName"))
-        );
-
-        let template_relationshipLine = this._go(go.Link,
-            {routing: go.Link.AvoidsNodes, curve: go.Link.JumpGap},
-            this._go(go.Shape),
-            this._go(go.TextBlock, new go.Binding("text", "role"), {
-                segmentIndex: 0,
-                segmentOffset: new go.Point(NaN, NaN)
-            }),
-            this._go(go.TextBlock, new go.Binding("text", "multiplicity"), {
-                segmentIndex: -1,
-                segmentOffset: new go.Point(NaN, NaN)
-            }),
-        );
-
-        let template_specializationLine = this._go(go.Link,
-            {routing: go.Link.AvoidsNodes, curve: go.Link.JumpGap},
-            this._go(go.Shape),
-            this._go(go.Shape, {
-                toArrow: "ForwardSemiCircle",
-                fill: null,
-                scale: 2,
-                segmentIndex: 1,
-                segmentFraction: 0.5
-            })
-        );
-
-
-        let template_totalGeneralizationLine = this._go(go.Link,
-            {routing: go.Link.AvoidsNodes, curve: go.Link.JumpGap, reshapable: true},
-            $(go.Shape, {
-                stroke: "transparent", fill: "transparent", pathPattern: this._go(go.Shape,
-                    {
-                        geometryString: "M0 0 L1 0 M0 3 L1 3",
-                        fill: "transparent",
-                        stroke: "black",
-                        strokeWidth: 1,
-                        strokeCap: "square"
-                    })
-            }));
-
-        let template_partialGeneralizationLine = this._go(go.Link,
-            {routing: go.Link.AvoidsNodes, curve: go.Link.JumpGap, reshapable: true},
-            $(go.Shape)
-        );
-
-
-        this._diagram.nodeTemplateMap.add("template_entity", template_entity);
-        this._diagram.nodeTemplateMap.add("template_relationshipDiamond", template_relationshipDiamond);
-        this._diagram.nodeTemplateMap.add("template_generalizationSpecializationCircle", template_generalizationSpecializationCircle);
-        this._diagram.nodeTemplateMap.add("", this._diagram.nodeTemplate);
-
-        this._diagram.linkTemplateMap.add("template_relationshipLine", template_relationshipLine);
-        this._diagram.linkTemplateMap.add("template_specializationLine", template_specializationLine);
-        this._diagram.linkTemplateMap.add("template_totalGeneralizationLine", template_totalGeneralizationLine);
-        this._diagram.linkTemplateMap.add("template_partialGeneralizationLine", template_partialGeneralizationLine);
-        this._diagram.linkTemplateMap.add("", this._diagram.linkTemplate);
-    }
+        diagram.model = new go.GraphLinksModel();
+        setupTemplates()
+    },
 
     /**
      * Adds an Entity to the diagram in the x,y coordinates specified. entityData contains its name and properties.
-     * @param entity
+     * @param entityData data of the entity to be modeled
+     * @param x abscissa of the point where the entity is to be added to the diagram
+     * @param y ordinate of the point where the entity is to be added to the diagram
      */
-    addEntity(entity) {
-        moodler.startTransaction("Add Entity" + entity.name);
-        moodler.model.addNodeData({key: entity.name, entityName: entity.name, properties: entity.properties});
-        moodler.commitTransaction("make new node");
+    addEntity: function (entityData, x, y) {
+        if (diagram.model.findNodeDataForKey(entityData.name) !== null)
+            throw new Error("An Entity with this name already exists");
+
+        diagram.startTransaction("Add Entity " + entityData.name);
+        diagram.model.addNodeData({
+            key: entityData.name,
+            location: new go.Point(x, y),
+            entityName: entityData.name,
+            properties: entityData.properties,
+            category: "entity"
+        });
+        diagram.commitTransaction("Add Entity " + entityData.name);
+    },
+
+
+    /**
+     * Adds a relationship between two entities
+     * @param linkData data of the relationship
+     * @param x abscissa of the point where the diamond is to be added to the diagram
+     * @param y ordinate of the point where the diamond is to be added to the diagram
+     */
+    addRelationship: function (linkData, x, y) {
+
+        var relName = "R_" + linkData.name;
+        if (diagram.model.findNodeDataForKey(relName) !== null)
+            throw new Error("An Relationship with this name already exists");
+
+        diagram.startTransaction("Add Relationship " + relName);
+
+        //Adding Diamond
+        diagram.model.addNodeData({
+            key: relName,
+            location: new go.Point(x, y),
+            relationshipName: linkData.name,
+            category: "relationshipDiamond"
+        });
+
+        //Adding Source Link
+        diagram.model.addLinkData({
+            key: linkData.name + "_Source",
+            from: linkData.source.data.entityName,
+            to: relName,
+            role: linkData.sourceRole,
+            multiplicity: linkData.sourceMultiplicity,
+            category: "relationshipLine"
+        });
+
+        //Adding Target Link
+        diagram.model.addLinkData({
+            key: linkData.name + "_Target",
+            from: relName,
+            to: linkData.target.data.entityName,
+            role: linkData.targetRole,
+            multiplicity: linkData.targetMultiplicity,
+            category: "relationshipLine"
+        });
+
+        diagram.commitTransaction("Add Relationship " + relName);
+    },
+
+    addGeneralizationSpecialization: function (parentEntity, targetEntities) {
+
     }
 
-}
 
-
-
-
+};
