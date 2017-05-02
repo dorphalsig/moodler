@@ -3,14 +3,24 @@
 var $go = go.GraphObject.make;
 var diagram;
 
-var Moodler = {
-    moodler_init: function (moodlerDiv) {
+var moodler = {
+
+    /**
+     * Init function, recieves an optional DIV Object
+     * @param moodlerDiv
+     */
+    init: function (moodlerDiv) {
+        if (typeof moodlerDiv === "undefined"){
+            moodlerDiv = "moodlerDIV";
+        }
+
         diagram = $go(go.Diagram, moodlerDiv, {
-            initialContentAlignment: go.Spot.Center, // center Diagram contents
+            //initialContentAlignment: go.Spot.Center, // center Diagram contents
+            padding: new go.Margin(75, 5, 5, 5),
             "undoManager.isEnabled": true // enable Ctrl-Z to undo and Ctrl-Y to redo
         });
         diagram.model = new go.GraphLinksModel();
-        setupTemplates()
+        setupTemplates();
     },
 
     /**
@@ -33,7 +43,6 @@ var Moodler = {
         });
         diagram.commitTransaction("Add Entity " + entityData.name);
     },
-
 
     /**
      * Adds a relationship between two entities
@@ -59,7 +68,7 @@ var Moodler = {
 
         //Adding Source Link
         diagram.model.addLinkData({
-            key: linkData.name + "_Source",
+            key: relName + "_Source",
             from: linkData.source.data.entityName,
             to: relName,
             role: linkData.sourceRole,
@@ -69,9 +78,9 @@ var Moodler = {
 
         //Adding Target Link
         diagram.model.addLinkData({
-            key: linkData.name + "_Target",
-            from: relName,
-            to: linkData.target.data.entityName,
+            key: relName + "_Target",
+            from: linkData.target.data.entityName,
+            to: relName,
             role: linkData.targetRole,
             multiplicity: linkData.targetMultiplicity,
             category: "relationshipLine"
@@ -80,9 +89,55 @@ var Moodler = {
         diagram.commitTransaction("Add Relationship " + relName);
     },
 
-    addGeneralizationSpecialization: function (parentEntity, targetEntities) {
+    /**
+     * Adds a Gen-Spec Relatonship between two or more entities
+     * @param gsData data of the GS Relationship. it is an Object with the following properties
+     *              parent: go.Node <-- Node of the parent Entity
+     *              children: go.Node[], <--Array of child Entity nodes
+     *              isPartial: boolean,
+     *              isDisjoint: boolean
+     *
+     * @param x abscissa of the point where the circle is to be added to the diagram
+     * @param y ordinate of the point where the circle is to be added to the diagram
+     */
+    addGeneralizationSpecialization: function (gsData, x, y) {
+
+        var relName = "GS_" + gsData.parent.data.entityName;
+        if (diagram.model.findNodeDataForKey(relName) !== null)
+            throw new Error("A Gen/Spec for the parent already exists.");
+
+        diagram.startTransaction("Add Gen/Spec " + relName);
+
+        //adding Circle
+        diagram.model.addNodeData({
+            key: relName,
+            location: new go.Point(x, y),
+            exclusiveness: gsData.isDisjoint ? "d" : "o",
+            category: "generalizationSpecializationCircle"
+        });
+
+        //adding gneralization line
+        diagram.model.addLinkData({
+            key: relName + "_Gen",
+            from: gsData.parent.data.entityName,
+            to: relName,
+            category: gsData.isPartial ? "partialGeneralizationLine" : "totalGeneralizationLine"
+        });
+
+        // add target lines
+        for (var i = 0; i < gsData.children.length; i++) {
+            var child = gsData.children[i];
+            diagram.model.addLinkData({
+                key: relName + "_Spe+" + child.data.name,
+                from: child.data.entityName,
+                to: relName,
+                category: "specializationLine"
+            });
+
+        }
 
     }
 
 
 };
+//#sourceURL=src/moodler/moodler.js

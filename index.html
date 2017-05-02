@@ -1,14 +1,133 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" manifest="manifest.appcache">
 <head>
     <meta charset="UTF-8">
+
+
     <title>Moodler 1.5</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- <script src="./src/moodler_bootstrap.js" type="application/javascript"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gojs/1.7.8/go-debug.js"></script>
-    <script src="src/moodler.js"></script>
+    <script src="src/templates/templates.js"></script>
+    <script src="src/moodler/moodler.js"></script>
+    <script>
+        function detectBrowser(userAgentString) {
+            if (!userAgentString) return null;
+
+            var browsers = [
+                ['edge', /Edge\/([0-9\._]+)/],
+                ['yandexbrowser', /YaBrowser\/([0-9\._]+)/],
+                ['chrome', /(?!Chrom.*OPR)Chrom(?:e|ium)\/([0-9\.]+)(:?\s|$)/],
+                ['crios', /CriOS\/([0-9\.]+)(:?\s|$)/],
+                ['firefox', /Firefox\/([0-9\.]+)(?:\s|$)/],
+                ['opera', /Opera\/([0-9\.]+)(?:\s|$)/],
+                ['opera', /OPR\/([0-9\.]+)(:?\s|$)$/],
+                ['ie', /Trident\/7\.0.*rv\:([0-9\.]+)\).*Gecko$/],
+                ['ie', /MSIE\s([0-9\.]+);.*Trident\/[4-7].0/],
+                ['ie', /MSIE\s(7\.0)/],
+                ['bb10', /BB10;\sTouch.*Version\/([0-9\.]+)/],
+                ['android', /Android\s([0-9\.]+)/],
+                ['ios', /Version\/([0-9\._]+).*Mobile.*Safari.*/],
+                ['safari', /Version\/([0-9\._]+).*Safari/]
+            ];
+
+            return browsers.map(function (rule) {
+                if (rule[1].test(userAgentString)) {
+                    var match = rule[1].exec(userAgentString);
+                    var version = match && match[1].split(/[._]/).slice(0, 3);
+
+                    if (version && version.length < 3) {
+                        Array.prototype.push.apply(version, (version.length == 1) ? [0, 0] : [0]);
+                    }
+
+                    return {
+                        name: rule[0],
+                        version: version.join('.')
+                    };
+                }
+            }).filter(Boolean).shift();
+        }
+    </script>
+    <script>
+        $(function () {
+            moodler.init();
+            var accessoryEntity = {
+                name: "Accessory",
+                properties: [{
+                    propertyName: "type",
+                    propertyType: "String"
+                }, {
+                    propertyName: "Description",
+                    propertyType: "String"
+                }]
+            };
+            var phoneEntity = {
+                name: "Phone",
+                properties: [{
+                    propertyName: "brand",
+                    propertyType: "String"
+                }, {
+                    propertyName: "price",
+                    propertyType: "Decimal"
+                }]
+            };
+            moodler.addEntity(accessoryEntity, 0, 0);
+            moodler.addEntity(phoneEntity, 500, 75);
+
+            var linkData = {
+                source: diagram.findNodeForKey("Phone"),
+                target: diagram.findNodeForKey("Accessory"),
+                name: "contains",
+                sourceRole: "KK",
+                targetRole: "pp",
+                sourceMultiplicity: "1..*",
+                targetMultiplicity: "1..*"
+            };
+            moodler.addRelationship(linkData, 350, 0);
+
+            var personEntity = {
+                name: "Person",
+                properties: [{propertyName: "name", propertyType: "String"},
+                    {propertyName: "lastName", propertyType: "String"},
+                    {propertyName: "email", propertyType: "String"},
+                    {propertyName: "dateOfBirth", propertyType: "Date"}
+                ]
+            };
+            var childEntity = {
+                name: "Child",
+                properties: [{propertyName: "twitch", propertyType: "String"},
+                    {propertyName: "likesDisneyFilms", propertyType: "boolean"},
+                    {propertyName: "likesVegetables", propertyType: "boolean"}
+                ]
+            };
+            var adultEntity = {
+                name: "Adult",
+                properties: [{propertyName: "last.fm", propertyType: "String"},
+                    {propertyName: "usesSpotify", propertyType: "boolean"},
+                    {propertyName: "likestoCook", propertyType: "boolean"}
+                ]
+            };
+            moodler.addEntity(personEntity,50,50);
+            moodler.addEntity(childEntity,0,100);
+            moodler.addEntity(adultEntity,150,100);
+
+            var gsData = {
+                parent: diagram.findNodeForKey("Person"),
+                children: [diagram.findNodeForKey("Child"), diagram.findNodeForKey("Adult")],
+                isPartial: false,
+                isDisjoint: true
+            };
+            moodler.addGeneralizationSpecialization(gsData,50,75)
+
+
+        })
+
+    </script>
     <style>
         #moodlerDIV {
             width: 95%;
             height: 95%;
+            min-height: 600px;
             background-color: #DDD;
             resize: both;
             overflow: auto;
@@ -16,7 +135,6 @@
     </style>
 </head>
 <body>
-<div id="moodlerDIV">
-</div>
+<div id="moodlerDIV"></div>
 </body>
 </html>

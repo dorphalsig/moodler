@@ -1,2 +1,6 @@
 
 src/gojs/
+
+\.idea/
+
+manifest\.appcache
