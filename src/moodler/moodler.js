@@ -25,23 +25,37 @@ var moodler = {
 
     /**
      * Adds an Entity to the diagram in the x,y coordinates specified. entityData contains its name and properties.
-     * @param entityData data of the entity to be modeled
      * @param x abscissa of the point where the entity is to be added to the diagram
      * @param y ordinate of the point where the entity is to be added to the diagram
      */
-    addEntity: function (entityData, x, y) {
+    addEntity: function (entityData,x, y) {
+        var name = "E-"+Math.round(Math.random()*100);
+        diagram.startTransaction("Add Entity " + name);
+        diagram.model.addNodeData({
+            key: name,
+            location: new go.Point(x, y),
+            category: "entity"
+        });
+        diagram.commitTransaction("Add Entity " + name);
+        moodler.editEntity(name,entityData);
+    },
+
+
+    editEntity: function (id,entityData){
+        var node = diagram.model.findNodeDataForKey(id);
+
+        if (node === null)
+            throw new Error("Canot edit non-existent node "+id);
+
         if (diagram.model.findNodeDataForKey(entityData.name) !== null)
             throw new Error("An Entity with this name already exists");
 
-        diagram.startTransaction("Add Entity " + entityData.name);
-        diagram.model.addNodeData({
-            key: entityData.name,
-            location: new go.Point(x, y),
-            entityName: entityData.name,
-            properties: entityData.properties,
-            category: "entity"
-        });
-        diagram.commitTransaction("Add Entity " + entityData.name);
+        var initialNodeName = node.key;
+        diagram.startTransaction("Editing node "+initialNodeName);
+        diagram.model.setKeyForNodeData(node,entityData.name);
+        diagram.model.setDataProperty(node,"entityName",entityData.name);
+        diagram.model.setDataProperty(node,"properties",entityData.properties);
+        diagram.commitTransaction("Editing node "+initialNodeName);
     },
 
     /**
@@ -135,7 +149,7 @@ var moodler = {
             });
 
         }
-
+        diagram.commitTransaction("Add Gen/Spec " + relName);
     }
 
 

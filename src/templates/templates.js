@@ -3,6 +3,11 @@
 function setupTemplates() {
 
     var template_entity = $go(go.Node, go.Panel.Vertical, new go.Binding("position", "location"),
+        {
+            doubleClick: function (e, node) {
+                alert(JSON.stringify(node.data))
+            }
+        },
         $go(go.Panel, "Auto", {stretch: go.GraphObject.Fill},
             $go(go.Shape, "Rectangle", {fill: "white"}),
             $go(go.TextBlock, new go.Binding("text", "entityName"), {margin: 5})

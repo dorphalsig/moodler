@@ -36,15 +36,23 @@ declare namespace moodler {
 
     /**
      * Adds an Entity to the diagram in the x,y coordinates specified. entityData contains its name and properties.
-     * @param entityData data of the entity to be modeled, it is an object with the following properties:
      *
      * @param x abscissa of the point where the entity is to be added to the diagram
      * @param y ordinate of the point where the entity is to be added to the diagram
      */
-    function addEntity(entityData: EntityData, x: number, y: number);
+    function addEntity(x: number, y: number);
+
+    /**
+     * Edits the data corresponding to the node specified by id
+     *
+     * @param id
+     * @param entityData
+     */
+    function editEntityData(id:String,entityData:EntityData);
 
     /**
      * Adds a relationship between two entities
+     *
      * @param relData data of the relationship. It is an obejct with the following properties:
      *      source: go.Node <-- Node of the Source Entity
      *      target: go.Node <-- Node of the Target Entity
@@ -58,7 +66,6 @@ declare namespace moodler {
      * @param y ordinate of the point where the diamond is to be added to the diagram
      */
     function addRelationship(relData: RelData, x: number, y: number);
-
 
     /**
      * Adds a Gen-Spec Relatonship between two or more entities

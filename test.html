@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gojs/1.7.8/go-debug.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/moodler.css">
+
+    <script>
+        "use strict";
+        /**
+         * Appends an attribute input field to the form
+         *
+         * @param event
+         */
+        function addField(event) {
+            var validKeys = [1, 13];
+            if (validKeys.indexOf(event.which) === -1)
+                return;
+
+            var cloneable = $(event.target.closest(".cloneable"));
+            var clone = cloneable.clone(true);
+            clone.find("input").val("");
+            clone.find("select").val("");
+            cloneable.after(clone);
+            clone.find(".actions > .remove").show();
+        }
+
+        /**
+         * Validates a formfield as soon as its blurred
+         *
+         */
+
+        function validateField(event) {
+            if (!event.target.checkValidity()) {
+                $(event.target).addClass("invalid");
+                $(event.target).closest(".modal").find(".errorMessage").show();
+            }
+            else
+                $(event.target).removeClass("invalid");
+        }
+
+
+        /**
+         * Updates the edited entity with the data from the edit form.
+         */
+        function editEntity() {
+            var form = $("#entityForm");
+            if (!form[0].checkValidity()) {
+                form[0].reportValidity();
+                return;
+            }
+            var id = form.find(".id");
+            var name = form.find(".entityName").val();
+            var attributes = [];
+            $.each(form.find(".cloneable"), function () {
+                attributes.push({
+                    propertyName: $(this).find(".attributeName").val(),
+                    propertyType: $(this).find(".attributeType").val()
+                });
+            });
+
+            try {
+                moodler.editEntity(id, {name: name, properties: attributes});
+            }
+            catch (error) {
+                $("#modal-entities").find(".errorMessage").innerHTML(error.message).show();
+                return;
+            }
+            document.location="#"; // Close Modal Window
+        }
+
+        function showEntityForm(inputEvent,node){
+            document.location="#modal-entities"; //open entities form
+            console.log("blah");
+        }
+
+        /**
+         * Removes the attribute input
+         *
+         * @param event
+         */
+        function removeField(event) {
+            var validKeys = [1, 13];
+            if (validKeys.indexOf(event.which) === -1)
+                return;
+
+            var cloneable = $(event.target.closest(".cloneable"));
+            cloneable.remove();
+        }
+
+        $(function () {
+            //add remove buttons
+            $(".add").click(addField);
+            $(".remove").click(removeField);
+
+            $.each($(".modal"), function () {
+                $(this).blur(validateField);
+            });
+
+
+            //setup form
+            $("#modal-entities").find("btn").click(editEntity);
+        })
+
+    </script>
+</head>
+
+<body>
+<div class="wrap">
+
+    <h1>Modal - Pure CSS (no Javascript)</h1>
+
+    <p>Example of modal in CSS only, here I use the pseudo selector ":target" and no javascript for modal action.</p>
+
+    <p>This works in IE9+ and all modern browsers.</p>
+
+    <p>View <a href="http://www.felipefialho.com/css-components/">Pure CSS Components</a> project.</p>
+    <hr/>
+
+    <a href="#modal-entities" class="btn">Modal!</a>
+
+</div>
+
+<!-- Modal -->
+<div class="modal" id="modal-entities">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h2>Entitätstyp Bearbeiten</h2>
+            <a href="#" class="btn-close" aria-hidden="true">×</a>
+            <div class="errorMessage">
+                The highlighted fields have errors, please check them. <br/>
+                Just roll over your mouse over the fields to see the correct format.
+            </div>
+        </div>
+        <div class="modal-body">
+            <form id="entityForm">
+                <input type="hidden" class="id">
+                <p><input type="text" placeholder="Name" class="entityName textInput formfield" pattern="\w{5,}"
+                          required="required" tabindex="0"
+                          title="Only letters,numbers, and _ are valid. &#013;Minimum Length: 5 chars">
+                </p>
+                <p class="cloneable">
+                    <input pattern="\w{5,}" required="required" class="textInput attributeName formfield"
+                           type="text"
+                           placeholder="Att. Name"
+                           title="Only letters,numbers, and _ are valid. &#013;Minimum Length: 5 chars"/>
+                    <select class="customSelect formfield attributeType" required title="Required Field">
+                        <option value="" disabled selected>Datentyp</option>
+                        <option value="string">string</option>
+                        <option value="int">int</option>
+                        <option value="float">float</option>
+                        <option value="double">double</option>
+                        <option value="bool">bool</option>
+                    </select>
+                    <span>▾</span>
+                    <span class="actions">
+                        <i tabindex="0" class="fa fa-plus-square add formfield" aria-hidden="true"
+                           title="Add Row"></i>
+                        <i tabindex="1" class="fa fa-minus-square remove formfield" aria-hidden="true"
+                           title="Remove this Row"></i>
+                    </span>
+                </p>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn">Hinzufungen!</button>
+        </div>
+    </div>
+</div>
+<!-- /Modal -->
+<input pattern="[\d\*],[\d\*]" required="required" class="textInput attributeMultiplicity formfield"
+       type="text" placeholder="1,*"/>
+
+</body>
+</html>

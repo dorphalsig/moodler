@@ -11,44 +11,11 @@
     <script src="src/templates/templates.js"></script>
     <script src="src/moodler/moodler.js"></script>
     <script>
-        function detectBrowser(userAgentString) {
-            if (!userAgentString) return null;
 
-            var browsers = [
-                ['edge', /Edge\/([0-9\._]+)/],
-                ['yandexbrowser', /YaBrowser\/([0-9\._]+)/],
-                ['chrome', /(?!Chrom.*OPR)Chrom(?:e|ium)\/([0-9\.]+)(:?\s|$)/],
-                ['crios', /CriOS\/([0-9\.]+)(:?\s|$)/],
-                ['firefox', /Firefox\/([0-9\.]+)(?:\s|$)/],
-                ['opera', /Opera\/([0-9\.]+)(?:\s|$)/],
-                ['opera', /OPR\/([0-9\.]+)(:?\s|$)$/],
-                ['ie', /Trident\/7\.0.*rv\:([0-9\.]+)\).*Gecko$/],
-                ['ie', /MSIE\s([0-9\.]+);.*Trident\/[4-7].0/],
-                ['ie', /MSIE\s(7\.0)/],
-                ['bb10', /BB10;\sTouch.*Version\/([0-9\.]+)/],
-                ['android', /Android\s([0-9\.]+)/],
-                ['ios', /Version\/([0-9\._]+).*Mobile.*Safari.*/],
-                ['safari', /Version\/([0-9\._]+).*Safari/]
-            ];
+        function setupforms(){
 
-            return browsers.map(function (rule) {
-                if (rule[1].test(userAgentString)) {
-                    var match = rule[1].exec(userAgentString);
-                    var version = match && match[1].split(/[._]/).slice(0, 3);
-
-                    if (version && version.length < 3) {
-                        Array.prototype.push.apply(version, (version.length == 1) ? [0, 0] : [0]);
-                    }
-
-                    return {
-                        name: rule[0],
-                        version: version.join('.')
-                    };
-                }
-            }).filter(Boolean).shift();
         }
-    </script>
-    <script>
+
         $(function () {
             moodler.init();
             var accessoryEntity = {
@@ -107,9 +74,9 @@
                     {propertyName: "likestoCook", propertyType: "boolean"}
                 ]
             };
-            moodler.addEntity(personEntity,50,50);
-            moodler.addEntity(childEntity,0,100);
-            moodler.addEntity(adultEntity,150,100);
+            moodler.addEntity(personEntity,150,50);
+            moodler.addEntity(childEntity,0,300);
+            moodler.addEntity(adultEntity,250,300);
 
             var gsData = {
                 parent: diagram.findNodeForKey("Person"),
@@ -117,7 +84,7 @@
                 isPartial: false,
                 isDisjoint: true
             };
-            moodler.addGeneralizationSpecialization(gsData,50,75)
+            moodler.addGeneralizationSpecialization(gsData,200,200)
 
 
         })
@@ -135,6 +102,115 @@
     </style>
 </head>
 <body>
+
+<div class="modal" id="entityForm" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h2>Entitätstyp</h2>
+            <a href="#" class="btn-close" aria-hidden="true">×</a>
+        </div>
+        <div class="modal-body">
+            <p>One modal example here! :D</p>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="btn">Nice!</a>
+        </div>
+    </div>
+</div>
+
 <div id="moodlerDIV"></div>
+
+<div id="" title="Entity Type">
+    <form>
+        <input type="hidden" id="entityId" class="entityId" value="">
+
+        <p>
+            <label for="entityName">Name</label>
+            <input type="text" name="entityName" id="entityName" placeholder="Name"
+                   class="entityName text ui-widget-content ui-corner-all" required="required">
+        </p>
+        <p class="cloneable">
+            <label for="attribute">Attribute(s)</label>
+            <input pattern=".{2,}:.{2,}" name="attribute" id="attribute"
+                   class="entityAttribute text text ui-widget-content ui-corner-all" type="text"
+                   placeholder="Name des Attributs : Attributstyp" title="Name">
+            <span>
+                            <i tabindex="0" class="fa fa-plus-square add" aria-hidden="true" title="Noch Einer"></i>
+                            <i tabindex="0" class="fa fa-minus-square remove" aria-hidden="true" title="Entfernen"></i>
+                        </span>
+        </p>
+        <p style="display:none;"><input type="submit" tabindex="-1"></p>
+    </form>
+</div>
+
+<div id="relationshipForm"  title="Beziehungstyp">
+    <form>
+        <input type="hidden" id="relationshipId" class="relationshipId" value="">
+        <p>
+            <label for="relationshipName">Name des Beziehungstyps</label>
+            <input type="text" name="entityName" id="relationshipName" placeholder="Name"
+                   class="relationshipName text ui-widget-content ui-corner-all" required="required">
+        </p>
+
+        <p>
+            <label for="entity1">1. Entitätstyp</label>
+            <select id="entity1" class="entityList" data-placeholder="Entitätstyp wählen" required></select>
+            <input type="text" id="cardinality1" title="Kardinalität" placeholder="1..*" required
+                   pattern="[\d+|\*|\+]\.\.[\d+|\*|\+]">
+            <input type="text" id="role1" title="Rolle" placeholder="Rolle" />
+        </p>
+        <p>
+            <label for="entity2">2. Entitätstyp</label>
+            <select id="entity2" class="entityList" data-placeholder="Entitätstyp wählen" required></select>
+            <input type="text" id="cardinality2" title="Kardinalität" placeholder="1..*" required
+                   pattern="[\d+|\*|\+]\.\.[\d+|\*|\+]">
+            <input type="text" id="role2" title="Rolle" placeholder="Rolle" />
+        </p>
+
+        <p style="display:none;"></p>
+    </form>
+</div>
+
+<div id="generalizationSpecializationForm" title="Generalisierung Spezialisierung">
+    <form>
+        <p>
+            <input type="hidden" id="id" class="id" value="">
+        <p>
+            <label for="supertype">Supertyp</label>
+            <select id="supertype" class="supertype entityList" data-placeholder="Entitätstyp wählen" required></select>
+        </p>
+
+
+        <p>
+        <fieldset>
+            <legend>Vollständigkeitsbedingung</legend>
+            <label for="total">Total</label>
+            <input type="radio" id="total" name="completeness" value="total" required />
+            <label for="partial">Partiell</label>
+            <input type="radio" id="partial" name="completeness" value="partial" />
+        </fieldset>
+        </p>
+
+        <p>
+        <fieldset>
+            <legend>Exklusivitätsbedingung</legend>
+            <label for="overlapping">Überlappend</label>
+            <input type="radio" id="overlapping" name="disjoint" value="O" required />
+            <label for="disjoint">Disjunkt</label>
+            <input type="radio" id="disjoint" name="disjoint" value="D" />
+        </fieldset>
+
+        </p>
+
+        <p>
+            <label for="subtype">Subtyp</label>
+            <select id="subtype" class="subtype entityList" data-placeholder="Entitätstyp wählen" multiple required></select>
+        </p>
+
+
+        <p style="display:none;"><input type="submit" tabindex="-1"></p>
+    </form>
+</div>
+
 </body>
 </html>
