@@ -60,7 +60,16 @@ var moodler = {
 
     /**
      * Adds a relationship between two entities
-     * @param linkData data of the relationship
+     *
+     * @param relData data of the relationship. It is an obejct with the following properties:
+     *      source: go.Node <-- Node of the Source Entity
+     *      target: go.Node <-- Node of the Target Entity
+     *      name: String
+     *      sourceRole: String
+     *      sourceMultiplicity: String
+     *      targetRole: String
+     *      targetMultiplicity: String
+     *
      * @param x abscissa of the point where the diamond is to be added to the diagram
      * @param y ordinate of the point where the diamond is to be added to the diagram
      */
@@ -116,7 +125,7 @@ var moodler = {
      */
     addGeneralizationSpecialization: function (gsData, x, y) {
 
-        var relName = "GS_" + gsData.parent.data.entityName;
+        var relName = "GS_" + gsData.parent.data.name;
         if (diagram.model.findNodeDataForKey(relName) !== null)
             throw new Error("A Gen/Spec for the parent already exists.");
 
@@ -142,7 +151,7 @@ var moodler = {
         for (var i = 0; i < gsData.children.length; i++) {
             var child = gsData.children[i];
             diagram.model.addLinkData({
-                key: relName + "_Spe+" + child.data.name,
+                key: relName + "_Spe+" + child.data.entityName,
                 from: child.data.entityName,
                 to: relName,
                 category: "specializationLine"

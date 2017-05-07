@@ -11,7 +11,7 @@ declare namespace moodler {
     }
 
     interface  EntityData {
-        name: String;
+        entityName: String;
         properties: Property[];
     }
 

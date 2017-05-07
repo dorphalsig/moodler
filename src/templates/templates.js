@@ -5,7 +5,7 @@ function setupTemplates() {
     var template_entity = $go(go.Node, go.Panel.Vertical, new go.Binding("position", "location"),
         {
             doubleClick: function (e, node) {
-                alert(JSON.stringify(node.data))
+                alert(JSON.stringify(node.data ))
             }
         },
         $go(go.Panel, "Auto", {stretch: go.GraphObject.Fill},
@@ -27,6 +27,23 @@ function setupTemplates() {
 
 
     var template_relationshipDiamond = $go(go.Node, go.Panel.Auto, new go.Binding("location", "location"),
+        {
+            linkDisconnected: function (node, link) {
+                var name = node.data.relationshipName;
+                var links = node.linksConnected;
+
+                if(links.count == 0)
+                    return; // there's already another process deleting the node
+
+                diagram.startTransaction("Remove Orphan Link Node "+name);
+
+                //Delete the "orphan" link
+                diagram.model.removeLinkData(links.first());
+
+                diagram.model.removeNodeData(node.data);
+                diagram.commitTransaction("Remove Orphan Link Node "+name);
+            }
+        },
         $go(go.Shape, "Diamond", {fill: "white", margin: 2, minSize: new go.Size(20, 20)}),
         $go(go.TextBlock, {margin: 2, font: "10px sans-serif"}, new go.Binding("text", "relationshipName"))
     );

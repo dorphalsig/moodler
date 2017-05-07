@@ -42,7 +42,6 @@
                 $(event.target).removeClass("invalid");
         }
 
-
         /**
          * Updates the edited entity with the data from the edit form.
          */
@@ -69,12 +68,26 @@
                 $("#modal-entities").find(".errorMessage").innerHTML(error.message).show();
                 return;
             }
-            document.location="#"; // Close Modal Window
+            document.location = "#"; // Close Modal Window
         }
 
-        function showEntityForm(inputEvent,node){
-            document.location="#modal-entities"; //open entities form
-            console.log("blah");
+        function showEntityForm(inputEvent, node) {
+            var form = $("#entityForm");
+            var data = node.data;
+
+            form.find(".entityName").val(data.entityName);
+
+            for(var i=0;i<data.properties.length;i++){
+                $(form.find(".cloneable")[i]).find('.propertyName').val(data.properties[i].propertyName);
+                $(form.find(".cloneable")[i]).find('.propertyType').val(data.properties[i].propertyType);
+                if(i<data.properties.length-1){
+                    $(form.find(".cloneable")[i]).find('.add').click();
+                }
+            }
+
+
+            document.location = "#modal-entities"; //open entities form
+
         }
 
         /**
@@ -96,7 +109,7 @@
             $(".add").click(addField);
             $(".remove").click(removeField);
 
-            $.each($(".modal"), function () {
+            $.each($(".formfield"), function () {
                 $(this).blur(validateField);
             });
 

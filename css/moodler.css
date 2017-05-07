@@ -1,14 +1,69 @@
 body {
     color: #333;
     font-family: 'Helvetica', arial;
+    font-size: 12px;
 }
 
-.wrap {
-    padding: 40px;
+/** MAIN LAYOUT **/
+
+body {
+    margin: 0;
+    background-color: #919191;
+}
+
+.container {
+    display: flex;
+    height:100vh;
+    width: 100vw;
+    background-color: black;
+    margin: 0;
+}
+
+.menu {
+    margin: 0;
+    float: left;
+    padding: 0;
+    width: 130px;
+    height: 100vh;
+    background: white;
+    align-content: center;
+    border-bottom: solid black 1px;
+    border-right: solid black 2px;
     text-align: center;
 }
 
-hr {
+.contents {
+    height: 100vh;
+    border-bottom: solid black 1px;
+    background-color: #ffffff;
+    overflow: scroll;
+    flex-grow: 1;
+}
+
+.moodlerDIV{
+    resize: both;
+    overflow: scroll;
+    min-height: 600px;
+    min-width: 800px;
+}
+
+.action{
+    height: 20px;
+    width: 20px;
+    display: inline;
+    margin: 10px;
+}
+
+.menuItem{
+    height: 50px;
+    margin: 5px;
+    display: inline;
+}
+
+
+/** MODAL CSS **/
+
+.modal hr {
     clear: both;
     margin-top: 40px;
     margin-bottom: 40px;
@@ -16,12 +71,12 @@ hr {
     border-top: 1px solid #aaa;
 }
 
-h1 {
+.modal h1 {
     font-size: 20px;
     margin-bottom: 40px;
 }
 
-p {
+.modal p {
     margin-bottom: 20px;
 }
 
@@ -188,7 +243,8 @@ p {
     box-shadow: 0 3px 0 0 #357ebd;
 }
 
-/* Select arrow styling */
+
+/** FORMS **/
 
 .customSelect + span {
     display: inline-block;
@@ -212,11 +268,13 @@ p {
 .errorMessage {
     font-size: 12px;
     font-weight: 200;
-    border: red 1px dashed;
+    border: black 2px solid;
     padding: 5px;
-    rgba(255, 0, 0, 0.07);
+    background: rgba(255, 0, 0, 0.07);
     display: none;
+    box-shadow: 3px 6px 3px rgba(0, 0, 0, 0.55);
 }
+
 
 .actions{
     margin-left: 5px;
