@@ -1,303 +1,73 @@
-body {
-    color: #333;
-    font-family: 'Helvetica', arial;
-    font-size: 12px;
-}
+@import url("//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css");
+@import url("//cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.4/css/selectize.bootstrap3.min.css");
+@import url("//cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.5.10/css/bootstrap-material-design.min.css");
+@import url("//cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.5.10/css/ripples.min.css");
+@import url("//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css");
+@import url("//fonts.googleapis.com/css?family=Roboto:300,400,500,700");
+@import url("//fonts.googleapis.com/icon?family=Material+Icons");
 
-/** MAIN LAYOUT **/
 
-body {
-    margin: 0;
-    background-color: #919191;
-}
-
-.container {
-    display: flex;
-    height:100vh;
-    width: 100vw;
-    background-color: black;
+body{
     margin: 0;
 }
 
-.menu {
-    margin: 0;
-    float: left;
-    padding: 0;
-    width: 130px;
-    height: 100vh;
-    background: white;
-    align-content: center;
-    border-bottom: solid black 1px;
-    border-right: solid black 2px;
-    text-align: center;
+.row hr {
+    border-width: 1px;
+    border-color: #DDD;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
-.contents {
-    height: 100vh;
-    border-bottom: solid black 1px;
-    background-color: #ffffff;
-    overflow: scroll;
-    flex-grow: 1;
+.modal-header > hr {
+    border-width: 2px;
+    border-color: #DDD;
+    margin-top: 10px;
+    margin-bottom: 0px;
 }
 
-.moodlerDIV{
-    resize: both;
-    overflow: scroll;
-    min-height: 600px;
-    min-width: 800px;
-}
-
-.action{
-    height: 20px;
-    width: 20px;
-    display: inline;
-    margin: 10px;
-}
-
-.menuItem{
-    height: 50px;
-    margin: 5px;
-    display: inline;
-}
-
-
-/** MODAL CSS **/
-
-.modal hr {
-    clear: both;
-    margin-top: 40px;
-    margin-bottom: 40px;
-    border: 0;
-    border-top: 1px solid #aaa;
-}
-
-.modal h1 {
-    font-size: 20px;
-    margin-bottom: 40px;
-}
-
-.modal p {
-    margin-bottom: 20px;
-}
-
-.btn {
-    background: #428bca;
-    border: #357ebd solid 1px;
-    border-radius: 3px;
-    color: #fff;
-    display: inline-block;
-    font-size: 14px;
-    padding: 8px 15px;
-    text-decoration: none;
-    text-align: center;
-    min-width: 60px;
-    position: relative;
-    transition: color .1s ease;
-}
-
-.btn-disabled{
-    background: #aaaaaa;
-    color: #333333;
-    border: #333333;
-    pointer-events: none;
-}
-
-.btn:hover {
-    background: #357ebd;
-}
-
-.btn.btn-big {
-    font-size: 15px;
-    min-width: 30px;
-}
-
-.btn-close {
-    color: #aaa;
-    font-size: 30px;
-    text-decoration: none;
-    position: absolute;
-    right: 5px;
-    top: 0;
-}
-
-.btn-close:hover {
-    color: #919191;
-}
-
-.modal:before {
-    content: "";
-    display: none;
-    background: rgba(0, 0, 0, 0.6);
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 10;
-}
-
-.modal:target:before {
-    display: block;
-}
-
-.modal:target .modal-dialog {
-    transform: translate(0, 0);
-    top: 20%;
-}
-
-.modal-dialog {
-    background: #fefefe;
-    border: #333 solid 1px;
-    border-radius: 5px;
-    margin-left: -200px;
-    position: fixed;
-    left: 50%;
-    top: -100%;
-    z-index: 11;
-    width: 360px;
-    transform: translate(0, -500%);
-    transition: transform 0.3s ease-out;
-}
-
-.modal-body {
-    padding: 20px;
-}
-
-.modal-header,
-.modal-footer {
-    padding: 10px 20px;
-}
-
-.modal-header {
-    border-bottom: #eee solid 1px;
-}
-
-.modal-header h2 {
-    font-size: 20px;
-}
-
-.modal-footer {
-    border-top: #eee solid 1px;
-    text-align: right;
-}
-
-.cloneable > .textInput:focus ~ .actions {
-    display: inline;
-}
-
-.cloneable > .customSelect:focus ~ .actions {
-    display: inline-block;
-}
-
-.cloneable {
-    position: relative;
-}
-
-.formfield {
-    font-size: 14px;
-}
-
-.textInput {
-    background: transparent;
-    border: 0;
-    border-bottom: #aaaaaa 1px solid;
-    font-family: 'Helvetica', arial;
-    width: 180px;
-    margin-right: 5px;
-
-}
-
-.attributeName {
-    width: 90px;
-}
-
-.multiplicity{
-    width: 25px;
-}
-
-.customSelect {
-    /* display: inline-block; */
-    padding-right: 10px;
-    /* padding-left: 5px; */
-    /* margin: 0; */
-    border-radius: 0;
-    /* line-height: 20px; */
-    box-shadow: 0 1px 0 0 #aaa;
-    background: transparent;
-    border: none;
-    outline: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
+.add {
     cursor: pointer;
 }
 
-
-.textInput:focus {
-    outline: none;
-    border-bottom: #aaaaaa 1px solid;
-}
-
-
-.customSelect:focus {
-    outline: none;
-    box-shadow: 0 3px 0 0 #357ebd;
-}
-
-
-/** FORMS **/
-
-.customSelect + span {
-    display: inline-block;
-    position: absolute;
-    float: left;
-    right: 145px;
-    color: black;
-    pointer-events: none;
-}
-
-.invalid{
-    border: 0;
-    box-shadow: 0 1px 0 0 red;
-}
-
-.valid{
-    border: 0;
-    box-shadow: 0 1px 0 0 darkgreen;
-}
-
-.errorMessage {
-    font-size: 12px;
-    font-weight: 200;
-    border: black 2px solid;
-    padding: 5px;
-    background: rgba(255, 0, 0, 0.07);
-    display: none;
-    box-shadow: 3px 6px 3px rgba(0, 0, 0, 0.55);
-}
-
-
-.actions{
-    margin-left: 5px;
-    display: none ;
-}
-
-.actions i {
-    color: #428bca;
-}
-
-.actions i:hover {
-    color: #2a6496;
-}
-
-.actions:active {
-    display: inline-block;
-}
-
-.actions i:active {
-    color: navy;
-    outline: none;
+.modal-content .modal-body {
+    padding-top: 15px;
 }
 
 .remove {
+    cursor: pointer;
     display: none;
+}
+
+.toggle {
+    margin-left: 12px;
+}
+
+#file{
+    margin-top: 15px;
+    border-bottom: 1px solid ;
+    margin-bottom: 20px;
+    text-align: center;
+    padding-bottom: 10px;
+}
+
+#file i{
+    font-size: 18px !important;
+    margin-right:15px;
+    display: inline-block;
+}
+
+#menu{
+    text-align: center;
+}
+
+#menu img{
+    width: 100px;
+    margin-bottom: 20px;
+    display: inline-block;
+}
+
+#moodler {
+    height: 100vh;
+    background-color: #DDFFDD;
+    display: block;
 }

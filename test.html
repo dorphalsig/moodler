@@ -1,191 +1,368 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" manifest="./manifest.appcache">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link href="css/moodler.css" rel="stylesheet"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gojs/1.7.8/go-debug.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/moodler.css">
+    <script src="js/moodler_bootstrap.js"></script>
+    <!--
+        <script >
+            "use strict";
 
-    <script>
-        "use strict";
-        /**
-         * Appends an attribute input field to the form
-         *
-         * @param event
-         */
-        function addField(event) {
-            var validKeys = [1, 13];
-            if (validKeys.indexOf(event.which) === -1)
-                return;
+            /**
+             * Appends an attribute input field to the form
+             *
+             * @param event
+             */
+            function addField(event) {
+                var validKeys = [1, 13];
+                if (validKeys.indexOf(event.which) === -1)
+                    return;
 
-            var cloneable = $(event.target.closest(".cloneable"));
-            var clone = cloneable.clone(true);
-            clone.find("input").val("");
-            clone.find("select").val("");
-            cloneable.after(clone);
-            clone.find(".actions > .remove").show();
-        }
-
-        /**
-         * Validates a formfield as soon as its blurred
-         *
-         */
-
-        function validateField(event) {
-            if (!event.target.checkValidity()) {
-                $(event.target).addClass("invalid");
-                $(event.target).closest(".modal").find(".errorMessage").show();
+                var cloneable = $(event.target.closest(".cloneable"));
+                var clone = cloneable.clone(true);
+                clone.find("input").val("");
+                clone.find("select").val("");
+                cloneable.after(clone);
+                clone.find(".actions > .remove").show();
             }
-            else
-                $(event.target).removeClass("invalid");
-        }
 
-        /**
-         * Updates the edited entity with the data from the edit form.
-         */
-        function editEntity() {
-            var form = $("#entityForm");
-            if (!form[0].checkValidity()) {
-                form[0].reportValidity();
-                return;
-            }
-            var id = form.find(".id");
-            var name = form.find(".entityName").val();
-            var attributes = [];
-            $.each(form.find(".cloneable"), function () {
-                attributes.push({
-                    propertyName: $(this).find(".attributeName").val(),
-                    propertyType: $(this).find(".attributeType").val()
-                });
-            });
-
-            try {
-                moodler.editEntity(id, {name: name, properties: attributes});
-            }
-            catch (error) {
-                $("#modal-entities").find(".errorMessage").innerHTML(error.message).show();
-                return;
-            }
-            document.location = "#"; // Close Modal Window
-        }
-
-        function showEntityForm(inputEvent, node) {
-            var form = $("#entityForm");
-            var data = node.data;
-
-            form.find(".entityName").val(data.entityName);
-
-            for(var i=0;i<data.properties.length;i++){
-                $(form.find(".cloneable")[i]).find('.propertyName').val(data.properties[i].propertyName);
-                $(form.find(".cloneable")[i]).find('.propertyType').val(data.properties[i].propertyType);
-                if(i<data.properties.length-1){
-                    $(form.find(".cloneable")[i]).find('.add').click();
+            /**
+             * Updates the edited entity with the data from the edit form.
+             */
+            function editEntity() {
+                var form = $("#entityForm");
+                if (!form[0].checkValidity()) {
+                    form[0].reportValidity();
+                    return;
                 }
+                var id = form.find(".id");
+                var name = form.find(".entityName").val();
+                var attributes = [];
+                $.each(form.find(".cloneable"), function () {
+                    attributes.push({
+                        propertyName: $(this).find(".attributeName").val(),
+                        propertyType: $(this).find(".attributeType").val()
+                    });
+                });
+
+                try {
+                    moodler.editEntity(id, {name: name, properties: attributes});
+                }
+                catch (error) {
+                    $("#modal-entities").find(".errorMessage").innerHTML(error.message).show();
+                    return;
+                }
+                document.location = "#"; // Close Modal Window
+            }
+
+            function showEntityForm(inputEvent, node) {
+                var form = $("#entityForm");
+                var data = node.data;
+
+                form.find(".entityName").val(data.entityName);
+
+                for (var i = 0; i < data.properties.length; i++) {
+                    $(form.find(".cloneable")[i]).find('.propertyName').val(data.properties[i].propertyName);
+                    $(form.find(".cloneable")[i]).find('.propertyType').val(data.properties[i].propertyType);
+                    if (i < data.properties.length - 1) {
+                        $(form.find(".cloneable")[i]).find('.add').click();
+                    }
+                }
+
+
+                document.location = "#modal-entities"; //open entities form
+
+            }
+
+            /**
+             * Removes the attribute input
+             *
+             * @param event
+             */
+            function removeField(event) {
+                var validKeys = [1, 13];
+                if (validKeys.indexOf(event.which) === -1)
+                    return;
+
+                var cloneable = $(event.target.closest(".cloneable"));
+                cloneable.remove();
             }
 
 
-            document.location = "#modal-entities"; //open entities form
+        </script>
 
-        }
-
-        /**
-         * Removes the attribute input
-         *
-         * @param event
-         */
-        function removeField(event) {
-            var validKeys = [1, 13];
-            if (validKeys.indexOf(event.which) === -1)
-                return;
-
-            var cloneable = $(event.target.closest(".cloneable"));
-            cloneable.remove();
-        }
-
-        $(function () {
-            //add remove buttons
-            $(".add").click(addField);
-            $(".remove").click(removeField);
-
-            $.each($(".formfield"), function () {
-                $(this).blur(validateField);
-            });
-
-
-            //setup form
-            $("#modal-entities").find("btn").click(editEntity);
-        })
-
-    </script>
+        -->
 </head>
-
 <body>
-<div class="wrap">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-1">
+                <div id="file">
+                    <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                    <i class="fa fa-folder-open" aria-hidden="true"></i>
+                    <i class="fa fa-picture-o" aria-hidden="true"></i>
+                </div>
+                <div id="menu">
+                    <img src="images/entity.png" draggable="true"/> <br />
+                    <img src="images/relationship.png" draggable="true"/><br />
+                    <img src="images/generalizationSpecialization.png" draggable="true"/>
+                </div>
 
-    <h1>Modal - Pure CSS (no Javascript)</h1>
-
-    <p>Example of modal in CSS only, here I use the pseudo selector ":target" and no javascript for modal action.</p>
-
-    <p>This works in IE9+ and all modern browsers.</p>
-
-    <p>View <a href="http://www.felipefialho.com/css-components/">Pure CSS Components</a> project.</p>
-    <hr/>
-
-    <a href="#modal-entities" class="btn">Modal!</a>
-
+        </div>
+        <div class="col-sm-10" id="moodler">
+        </div>
+    </div>
 </div>
 
-<!-- Modal -->
-<div class="modal" id="modal-entities">
+
+<div class="wrap">
+    <i class="btn btn-raised btn-info material-icons" data-toggle="modal" data-target="#entity-modal">launch</i>
+    <i class="btn btn-raised btn-success material-icons" data-toggle="modal" data-target="#relationsip-modal">launch</i>
+    <i class="btn btn-raised btn-error material-icons" data-toggle="modal" data-target="#inheritance-modal">launch</i>
+</div>
+<!-- Modals -->
+<div class="modal fade" id="entity-modal">
     <div class="modal-dialog">
-        <div class="modal-header">
-            <h2>Entitätstyp Bearbeiten</h2>
-            <a href="#" class="btn-close" aria-hidden="true">×</a>
-            <div class="errorMessage">
-                The highlighted fields have errors, please check them. <br/>
-                Just roll over your mouse over the fields to see the correct format.
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 class="modal-title">Entitätstyp Hinzufügen/Bearbeiten</h3>
+                <hr/>
+            </div>
+            <div class="modal-body">
+                <form id="entityForm">
+                    <input type="hidden" id="entityId">
+                    <input type="hidden" id="entityX">
+                    <input type="hidden" id="entityY">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group label-floating">
+                                <label class="control-label" for="entityName">Name des Entitätstyp</label>
+                                <input class="form-control" id="entityName" type="text" pattern="\w{5,}" required/>
+                                <p class="help-block">
+                                    <span class="label label-info">Pflichtfeld - Mindestelänge: 5</span> Nur Buchstabe,
+                                    Ziffern und &quot;_&quot; sind erlaubt.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row cloneable">
+                        <div class="col-sm-7">
+                            <div class="label-floating form-group">
+                                <label class="control-label" for="attributeName">Att. Name</label>
+                                <input pattern="\w{5,}" id="attributeName" required class="form-control" type="text">
+                                <p class="help-block">
+                                    <span class="label label-info">Pflichtfeld - Mindestelänge: 5</span> Nur Buchstabe,
+                                    Ziffern und &quot;_&quot; sind erlaubt.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="label-floating form-group">
+                                <label for="attributeType" class="control-label">At. Typ</label>
+                                <select id="attributeType" class="form-control" required title="Pflichtfeld">
+                                    <option></option>
+                                    <option value="string">string</option>
+                                    <option value="int">int</option>
+                                    <option value="float">float</option>
+                                    <option value="double">double</option>
+                                    <option value="bool">bool</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="label-floating form-group">
+                                <i class="material-icons add">add</i>
+                                <i class="material-icons remove">remove</i>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                <button type="button" class="btn btn-primary">Fortfahren</button>
             </div>
         </div>
-        <div class="modal-body">
-            <form id="entityForm">
-                <input type="hidden" class="id">
-                <p><input type="text" placeholder="Name" class="entityName textInput formfield" pattern="\w{5,}"
-                          required="required" tabindex="0"
-                          title="Only letters,numbers, and _ are valid. &#013;Minimum Length: 5 chars">
-                </p>
-                <p class="cloneable">
-                    <input pattern="\w{5,}" required="required" class="textInput attributeName formfield"
-                           type="text"
-                           placeholder="Att. Name"
-                           title="Only letters,numbers, and _ are valid. &#013;Minimum Length: 5 chars"/>
-                    <select class="customSelect formfield attributeType" required title="Required Field">
-                        <option value="" disabled selected>Datentyp</option>
-                        <option value="string">string</option>
-                        <option value="int">int</option>
-                        <option value="float">float</option>
-                        <option value="double">double</option>
-                        <option value="bool">bool</option>
-                    </select>
-                    <span>▾</span>
-                    <span class="actions">
-                        <i tabindex="0" class="fa fa-plus-square add formfield" aria-hidden="true"
-                           title="Add Row"></i>
-                        <i tabindex="1" class="fa fa-minus-square remove formfield" aria-hidden="true"
-                           title="Remove this Row"></i>
-                    </span>
-                </p>
-            </form>
+    </div>
+</div>
+<div class="modal fade" id="relationsip-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 class="modal-title">Beziehungstyp Hinzufügen/Bearbeiten</h3>
+                <hr/>
+            </div>
+            <div class="modal-body">
+                <form id="relationshipForm">
+                    <input type="hidden" id="relationshipId" value=""/>
+                    <input type="hidden" id="relationshipX">
+                    <input type="hidden" id="relationshipY">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group label-floating">
+                                <label class="control-label" for="relationshipName">Name des Beziehungstyp</label>
+                                <input pattern="\w{5,}" required id="relationshipName" class="form-control" type="text">
+                                <p class="help-block">
+                                    <span class="small"><i class="material-icons text-info">info</i></span>Pflichtfeld -
+                                    Mindestelänge: 5 - Alphanum.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-12 form-group">
+                                    <h4>1. Entitätstyp</h4>
+                                    <hr/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group label-floating">
+                                        <label for="entity1" class="control-label">Entitätstyp Wählen</label>
+                                        <select id="entity1" class="form-control" required>
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <div class="form-group label-floating">
+                                        <label class="control-label" for="role1">Rolle</label>
+                                        <input pattern="\w{5,}" id="role1" class="form-control" type="text" required>
+                                        <p class="help-block">
+                                            <span class="small"><i class="material-icons text-info">info</i></span>Pflichtfeld
+                                            - Mindestelänge: 5 - Alphanum.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group label-floating">
+                                        <label class="control-label" for="cardinality1">Kardin.</label>
+                                        <input pattern="[\d+|\*],[\d+|\*]" id="cardinality1" class="form-control"
+                                               type="text" required>
+                                        <p class="help-block">
+                                            <span class="small"><i class="material-icons text-info">info</i></span>1,*
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-12 form-group">
+                                    <h4>2. Entitätstyp</h4>
+                                    <hr/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group label-floating">
+                                        <label for="entity2" class="control-label">Entitätstyp Wählen</label>
+                                        <select id="entity2" class="form-control" required>
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <div class="form-group label-floating">
+                                        <label class="control-label" for="role2">Rolle</label>
+                                        <input pattern="\w{5,}" required id="role2" class="form-control" type="text">
+                                        <p class="help-block">
+                                            <span class="small"><i class="material-icons text-info">info</i></span>Pflichtfeld
+                                            - Mindestelänge: 5 - Alphanum.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group label-floating">
+                                        <label class="control-label" for="cardinality2">Kardin.</label>
+                                        <input pattern="[\d+|\*],[\d+|\*]" id="cardinality2" class="form-control"
+                                               type="text" required>
+                                        <p class="help-block">
+                                            <span class="small"><i class="material-icons text-info">info</i></span>1,*
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                <button type="button" class="btn btn-primary">Fortfahren</button>
+            </div>
         </div>
-        <div class="modal-footer">
-            <button class="btn">Hinzufungen!</button>
+    </div>
+</div>
+<div class="modal fade" id="inheritance-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 class="modal-title">Vererbung Hinzufügen/Bearbeiten</h3>
+                <hr/>
+            </div>
+            <div class="modal-body">
+                <form id="inheritanceForm">
+                    <input type="hidden" id="inheritanceId">
+                    <input type="hidden" id="inheritanceX">
+                    <input type="hidden" id="inheritanceY">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group label-floating">
+                                <label for="parent" class="control-label">Ober Entitätstyp</label>
+                                <select id="parent" class="form-control" required>
+                                    <option></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group label-floating">
+                                <label for="children" class="control-label">Unter Entitätstypen</label>
+                                <select id="children" multiple class="form-control" required>
+                                    <option></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4 col-sm-offset-1">
+                            <div class="togglebutton">
+                                <label>
+                                    Partiell
+                                    <input type="checkbox" id="completeness" value="total"> Total
+                                </label>
+                            </div>
+                        </div>
+                        <div class=" col-sm-offset-1 col-sm-5">
+                            <div class="togglebutton">
+                                <label>
+                                    Disjunkt<input type="checkbox" id="overlapping"> Überlappend
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                <button type="button" class="btn btn-primary">Fortfahren</button>
+            </div>
         </div>
     </div>
 </div>
 <!-- /Modal -->
-<input pattern="[\d\*],[\d\*]" required="required" class="textInput attributeMultiplicity formfield"
-       type="text" placeholder="1,*"/>
-
 </body>
 </html>

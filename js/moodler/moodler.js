@@ -1,8 +1,5 @@
 "use strict";
 
-var $go = go.GraphObject.make;
-var diagram;
-
 var moodler = {
 
     /**
@@ -10,26 +7,28 @@ var moodler = {
      * @param moodlerDiv
      */
     init: function (moodlerDiv) {
-        if (typeof moodlerDiv === "undefined"){
+        if (typeof moodlerDiv === "undefined") {
             moodlerDiv = "moodlerDIV";
         }
 
-        diagram = $go(go.Diagram, moodlerDiv, {
+        var $go = go.GraphObject.make;
+        var diagram = $go(go.Diagram, moodlerDiv, {
             //initialContentAlignment: go.Spot.Center, // center Diagram contents
             padding: new go.Margin(75, 5, 5, 5),
             "undoManager.isEnabled": true // enable Ctrl-Z to undo and Ctrl-Y to redo
         });
         diagram.model = new go.GraphLinksModel();
-        setupTemplates();
+        setupTemplates($go,diagram);
     },
 
     /**
-     * Adds an Entity to the diagram in the x,y coordinates specified. entityData contains its name and properties.
+     * Adds an Entity to the diagram in the x,y coordinates specified.
+     * @entityData contains its name and properties.
      * @param x abscissa of the point where the entity is to be added to the diagram
      * @param y ordinate of the point where the entity is to be added to the diagram
      */
-    addEntity: function (entityData,x, y) {
-        var name = "E-"+Math.round(Math.random()*100);
+    addEntity: function (entityData, x, y) {
+        var name = "E-" + Math.round(Math.random() * 100);
         diagram.startTransaction("Add Entity " + name);
         diagram.model.addNodeData({
             key: name,
@@ -37,25 +36,43 @@ var moodler = {
             category: "entity"
         });
         diagram.commitTransaction("Add Entity " + name);
-        moodler.editEntity(name,entityData);
+        moodler.editEntity(name, entityData);
+    },
+
+    /**
+     * Retrieves a list of all Entities in the current model
+     */
+    getEntityList: function () {
+        diagram.model.nodeDataArray.filter(function (nodeData) {
+            return nodeData.category === "entity"
+        })
     },
 
 
-    editEntity: function (id,entityData){
+    /**
+     * Retrieves the data of a specified entity
+     * @param id
+     * @return Entity
+     */
+    getEntityData: function(id){
+      return diagram.model.findNodeDataForKey(id);
+    },
+
+    editEntity: function (id, entityData) {
         var node = diagram.model.findNodeDataForKey(id);
 
         if (node === null)
-            throw new Error("Canot edit non-existent node "+id);
+            throw new Error("Canot edit non-existent node " + id);
 
         if (diagram.model.findNodeDataForKey(entityData.name) !== null)
             throw new Error("An Entity with this name already exists");
 
         var initialNodeName = node.key;
-        diagram.startTransaction("Editing node "+initialNodeName);
-        diagram.model.setKeyForNodeData(node,entityData.name);
-        diagram.model.setDataProperty(node,"entityName",entityData.name);
-        diagram.model.setDataProperty(node,"properties",entityData.properties);
-        diagram.commitTransaction("Editing node "+initialNodeName);
+        diagram.startTransaction("Editing node " + initialNodeName);
+        diagram.model.setKeyForNodeData(node, entityData.name);
+        diagram.model.setDataProperty(node, "entityName", entityData.name);
+        diagram.model.setDataProperty(node, "properties", entityData.properties);
+        diagram.commitTransaction("Editing node " + initialNodeName);
     },
 
     /**
@@ -163,4 +180,4 @@ var moodler = {
 
 
 };
-//#sourceURL=src/moodler/moodler.js
+//#sourceURL=js/moodler/moodler.js
