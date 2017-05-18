@@ -78,9 +78,9 @@ var moodler = {
     /**
      * Adds a relationship between two entities
      *
-     * @param relData data of the relationship. It is an obejct with the following properties:
-     *      source: go.Node <-- Node of the Source Entity
-     *      target: go.Node <-- Node of the Target Entity
+     * @param linkData data of the relationship. It is an obejct with the following properties:
+     *      source: String <-- Id of the Source Entity
+     *      target: String <-- Id of the Target Entity
      *      name: String
      *      sourceRole: String
      *      sourceMultiplicity: String
@@ -108,8 +108,7 @@ var moodler = {
 
         //Adding Source Link
         diagram.model.addLinkData({
-            key: relName + "_Source",
-            from: linkData.source.data.entityName,
+            from: linkData.source,
             to: relName,
             role: linkData.sourceRole,
             multiplicity: linkData.sourceMultiplicity,
@@ -118,8 +117,7 @@ var moodler = {
 
         //Adding Target Link
         diagram.model.addLinkData({
-            key: relName + "_Target",
-            from: linkData.target.data.entityName,
+            from: linkData.target,
             to: relName,
             role: linkData.targetRole,
             multiplicity: linkData.targetMultiplicity,
@@ -127,6 +125,30 @@ var moodler = {
         });
 
         diagram.commitTransaction("Add Relationship " + relName);
+    },
+
+    getRelationshipData: function(id){
+        var node = diagram.findNodeForKey(id);
+        var data = node.data;
+        var links = node.findLinksConnected();
+        for(var i=0;i<2;i++){
+            var link = links[i].data;
+            if(i === 0){
+                data.source = link.from;
+                data.sourceMultiplicity = link.multiplicity;
+                data.sourceRole = link.role;
+            }
+            else{
+                data.target = link.from;
+                data.targetMultiplicity = link.multiplicity;
+                data.targetRole = link.role;
+            }
+        }
+        return data;
+    },
+
+    deleteRelationship: function(id){
+        diagram.removeNodeData(diagram.model.findNodeDataForKey(id));
     },
 
     /**
