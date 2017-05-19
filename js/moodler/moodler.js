@@ -1,6 +1,6 @@
 "use strict";
 
-var moodler = {
+window.moodler = {
 
     /**
      * Init function, recieves an optional DIV Object
@@ -10,7 +10,7 @@ var moodler = {
         if (typeof moodlerDiv === "undefined") {
             moodlerDiv = "moodlerDIV";
         }
-
+        go.licenseKey = "54fe4ee3b01c28c702d95d76423d6cbc5cf07f21de8349a00a5042a3b95c6e172099bc2a01d68dc986ea5efa4e2dc8d8dc96397d914a0c3aee38d7d843eb81fdb53174b2440e128ca75420c691ae2ca2f87f23fb91e076a68f28d8f4b9a8c0985dbbf28741ca08b87b7d55370677ab19e2f98b7afd509e1a3f659db5eaeffa19fc6c25d49ff6478bee5977c1bbf2a3";
         var $go = go.GraphObject.make;
         var diagram = $go(go.Diagram, moodlerDiv, {
             //initialContentAlignment: go.Spot.Center, // center Diagram contents
@@ -18,6 +18,7 @@ var moodler = {
             "undoManager.isEnabled": true // enable Ctrl-Z to undo and Ctrl-Y to redo
         });
         diagram.model = new go.GraphLinksModel();
+        window.PIXELRATIO = diagram.computePixelRatio();
         setupTemplates($go,diagram);
     },
 

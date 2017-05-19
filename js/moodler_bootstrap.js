@@ -8,16 +8,14 @@ if (window.jQuery) $.when(
     $.getScript("https://cdnjs.cloudflare.com/ajax/libs/gojs/1.7.10/go-debug.js"),
     $.getScript("js/moodler/moodler.js"),
     $.getScript("js/moodler/erd_templates.js"),
+    $.getScript("js/forms.js"),
     $.Deferred(function (deferred) {
         $(deferred.resolve);
     })
 ).done(function () {
     $.material.init();
-    //"init.js"
     moodler.init("moodler");
-
-    //place your code here, the scripts are all loaded
-
+    formHandler.init();
 });
 else
     alert("Failed to load Jquery - Can not continue");
