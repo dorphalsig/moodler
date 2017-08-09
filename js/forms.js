@@ -1,22 +1,44 @@
 "use strict";
-window.formHandler= {
-    init: function(){
+window.formHandler = {
+
+    init: function () {
         $(".add").click(formHandler.addField);
         $(".remove").click(formHandler.removeField);
 
-        $("#menu").find("img").on("dragstart",function(event){
-            event.dataTransfer.setData("id", event.target.id)
+        $("#menu").find("img").on("dragstart", function (event) {
+            formHandler.dragStartHandler(event)
         });
 
-        $("#moodler").on("dragover",function (event) {
+        $("#moodler").on("dragover", function (event) {
             event.preventDefault();
+        })
+            .on("drop", function (ev) {
+                ev.preventDefault();
+                formHandler.dropHandler(ev);
+            });
+
+        $("#entity-modal").find(".btn.btn-primary").click(function () {
+            formHandler.addEditEntity();
         });
 
-        $("#moodler").on("drop",function (ev) {
-            formHandler.dropHandler(ev);
+        $("#relationship-modal").find(".btn.btn-primary").click(function () {
+            formHandler.addEditRelationship();
         });
+
+        $("#inheritance-modal").find(".btn.btn-primary").click(function () {
+            formHandler.addEditGeneralizationSpecialization();
+        });
+
+
+        $("#save").click(formHandler.save);
+        $("#export").click(formHandler.saveImage);
+        $("#load").click(formHandler.loadFile);
+        $("#loadFile").change(formHandler.load);
+
+        formHandler.setupDropdowns();
 
     },
+
     addField: function () {
         var cloneable = $(this).closest(".cloneable");
         var clone = cloneable.clone(true);
@@ -24,12 +46,12 @@ window.formHandler= {
         clone.find("select").val("");
         cloneable.after(clone);
         var removeBtn = clone.find(".remove");
-        removeBtn.show();
-        removeBtn.prop("disabled", false);
+        removeBtn.removeClass("hidden");
+
     },
 
     removeField: function () {
-        if (window.$(this).is(":visible")) {
+        if (!$(this).hasClass("hidden")) {
             var cloneable = $(this).closest(".cloneable");
             cloneable.remove();
         }
@@ -39,31 +61,38 @@ window.formHandler= {
      *  Handles the click of the "Erstellen" button in the Entity Modal Form
      */
     addEditEntity: function () {
-        var form = $("#entity-form");
+        var modal = $("#entity-modal");
+        if (!modal.find("form")[0].checkValidity())
+            return;
+
+        var id = $("#entityId").val();
+        var x = $("#entityX").val();
+        var y = $("#entityY").val();
+
+
         var attributes = [];
 
-        form.find(".cloneable").each(function () {
+        modal.find(".cloneable").each(function () {
             attributes.push({
-                propertyName: $(this).find("#attributeName"),
-                propertyType: $(this).find("#attributeType")
+                propertyName: $(this).find("#attributeName").val(),
+                propertyType: $(this).find("#attributeType").val()
             });
         });
 
-        var entityData = {
-            entityName: form.find("#entityName").val(),
+        var data = {
+            entityName: modal.find("#entityName").val(),
             properties: attributes
         };
 
-        if (id === "") {
-            moodler.addEntity(entityData, form.find("#entityX"), form.find("#entityY"));
-        }
-        else
-            moodler.editEntity(id, entityData);
+        if (id !== "")
+            moodler.deleteEntity(id);
+
+        moodler.addEntity(data, x, y);
+        modal.modal('hide');
     },
 
     addEditRelationship: function () {
         var modal = $("#relationship-modal");
-        modal.find("form")[0].reset();
         var id = modal.find("#relationshipId").val();
         var x = modal.find("#relationshipX").val();
         var y = modal.find("#relationshipY").val();
@@ -82,62 +111,172 @@ window.formHandler= {
             moodler.deleteRelationship(id);
 
         moodler.addRelationship(linkData, x, y);
+        modal.modal('hide');
+    },
+
+    addEditGeneralizationSpecialization: function () {
+        var modal = $("#inheritance-modal");
+        var id = $("#inheritanceId").val();
+        var x = $("#inheritanceX").val();
+        var y = $("#inheritanceY").val();
+
+        var data = {
+            parent: $("#parent").val(),
+            children: $("#children").val(),
+            isPartial: $("#isPartial").val(),
+            isDisjoint: $("#isDisjoint").val()
+        };
+
+        if (id !== "")
+            moodler.deleteGeneralizationSpecialization(id);
+
+        moodler.addGeneralizationSpecialization(data, x, y);
+        modal.modal('hide');
     },
 
     showEntityModal: function (x, y, entityId) {
 
         var modal = $("#entity-modal");
         modal.find("form")[0].reset();
+        modal.find(".remove").click();
+
         modal.find("#entityX").val(x);
         modal.find("#entityY").val(y);
 
         if (typeof entityId !== "undefined") {
-            var entity = moodler.getEntityData(id);
+            var entity = moodler.getEntityData(entityId);
             modal.find("#entityName").val(entity.entityName);
             modal.find("#entityId").val(entityId);
 
-            $.each(entity.properties, function (prop) {
+            for (var i = 0; i < entity.properties.length; i++) {
+                var prop = entity.properties[i];
                 var propertyLine = modal.find(".cloneable:last-of-type");
                 propertyLine.find("#attributeName").val(prop.propertyName);
                 propertyLine.find("#attributeType").val(prop.propertyType);
                 propertyLine.find(".add").click()
-            });
+
+            }
 
             modal.find(".cloneable:last-of-type").find(".remove").click();
         }
 
-        form.modal();
+        modal.modal();
 
     },
 
     showRelForm: function (x, y, relId) {
-
         var modal = $("#relationship-modal");
         modal.find("form")[0].reset();
-        modal.find("#relationshipX").val(x);
-        modal.find("#relationshipY").val(y);
+        $("#relationshipX").val(x);
+        $("#relationshipY").val(y);
+
+        var options = [];
+        var entities = moodler.getEntityList();
+
 
         if (typeof relId !== "undefined") {
             var data = moodler.getRelationshipData(relId);
-            modal.find("#relationshipId").val(relId);
-            modal.find("#relationshipName").val(data.relationshipName);
-            modal.find("#entity1").val(data.source);
-            modal.find("#role1").val(data.sourceRole);
-            modal.find("#cardinality1").val(data.sourceMultiplicity);
-            modal.find("#entity2").val(data.target);
-            modal.find("#role2").val(data.targetRole);
-            modal.find("#cardinality2").val(data.targetMultiplicity);
+            $("#relationshipId").val(relId);
+            $("#relationshipName").val(data.relationshipName);
+            $("#entity1").val(data.source);
+            $("#role1").val(data.sourceRole);
+            $("#cardinality1").val(data.sourceMultiplicity);
+            $("#entity2").val(data.target);
+            $("#role2").val(data.targetRole);
+            $("#cardinality2").val(data.targetMultiplicity);
         }
+        modal.modal();
     },
+
+    showInheritanceForm: function (x, y, id) {
+        var modal = $("#inheritance-modal");
+        modal.find("form")[0].reset();
+        $("#inheritanceX").val(x);
+        $("#inheritanceY").val(y);
+
+        if (typeof id !== "undefined") {
+            var data = moodler.getGeneralizationSpecializationData(id);
+            $("#parent").val(data.parent);
+            $("#children").val(data.children);
+
+            if (data.isPartial)
+                $("#isPartial").prop("checked", true);
+
+            if (data.isDisjoint)
+                $("#isDisjoint").prop("checked", true);
+
+        }
+        modal.modal()
+    },
+
+    save: function () {
+        alert("Die Datei wird Herunterladen. Bitte stellen Sie sicher, dass der Download in Ihnen Browser ist erlaubt.");
+        var json = moodler.toJSON();
+        var date = new Date();
+        var fileName = date.getDate() + "." + date.getMonth() + "_" + date.getHours() + "." + date.getMinutes() + " - Moodler.json";
+        var blob = new Blob([json], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, fileName);
+
+
+    },
+
+    saveImage: function () {
+        alert("Die Datei wird Herunterladen. Bitte stellen Sie sicher, dass der Download in Ihnen Browser ist erlaubt.");
+        var date = new Date();
+        var fileName = date.getDate() + "." + date.getMonth() + " - Moodler.png";
+
+        var sliceSize = 512;
+        var byteCharacters = atob(moodler.toPNG());
+        var byteArrays = [];
+
+        for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+            var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+            var byteNumbers = new Array(slice.length);
+            for (var i = 0; i < slice.length; i++) {
+                byteNumbers[i] = slice.charCodeAt(i);
+            }
+
+            var byteArray = new Uint8Array(byteNumbers);
+
+            byteArrays.push(byteArray);
+        }
+        var blob = new Blob(byteArrays, {type: "image/png"});
+        saveAs(blob, fileName);
+    },
+
+    load: function () {
+        var field = $("#loadFile");
+        if (field.val() !== "") {
+            var file = field[0].files[0];
+            var reader = new FileReader();
+            reader.readAsText(file);
+            reader.onload = function (event) {
+                moodler.fromJSON(event.target.result);
+            };
+            field.val("");
+        }
+    }
+    ,
+
+    loadFile: function () {
+        $("#loadFile").click();
+    }
+    ,
+
+    dragStartHandler: function (event) {
+        event.originalEvent.dataTransfer.setData("shape", event.target.id)
+    }
+    ,
 
     /**
      * handles dropping of menu items into the main div
      * @param event
      */
     dropHandler: function (event) {
-        var id = event.dataTransfer.getData("id");
+        var shape = event.originalEvent.dataTransfer.getData("shape");
         // Dragging onto a Diagram
-        var can = event.target;
+        var can = event.originalEvent.target;
         var pixelratio = window.PIXELRATIO;
 
         // if the target is not the canvas, we may have trouble, so just quit:
@@ -150,7 +289,7 @@ window.formHandler= {
         var mx = event.clientX - bbox.left * ((can.width / pixelratio) / bbw);
         var my = event.clientY - bbox.top * ((can.height / pixelratio) / bbh);
 
-        switch (id) {
+        switch (shape) {
             case "entity":
                 formHandler.showEntityModal(mx, my);
                 break;
@@ -159,11 +298,41 @@ window.formHandler= {
                 break;
 
             case "inheritance":
-                alert("Todo");
+                formHandler.showInheritanceForm(mx, my);
                 break;
         }
     }
-}
+    ,
+
+    setupDropdowns: function () {
+
+        var singleValue = {
+            valueField: 'key',
+            labelField: 'entityName',
+            searchField: 'entityName',
+            create: false,
+            load: function (query, callback) {
+                var filtered = moodler.getEntityList(query);
+                callback(filtered);
+            }
+        };
+
+        var multiValue = singleValue;
+        multiValue.plugins = ['remove_button'];
+
+
+        $("#entity1").selectize(singleValue);
+
+        $("#entity2").selectize(singleValue);
+
+        $("#parent").selectize(singleValue);
+
+        $("#children").selectize(multiValue);
+
+    }
+
+};
+//# sourceURL=forms.js
 
 /**
  * Created by paavum on 17.05.17.

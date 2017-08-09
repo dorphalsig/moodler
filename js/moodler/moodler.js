@@ -2,6 +2,10 @@
 
 window.moodler = {
 
+    _go: "",
+    _diagram: "",
+
+
     /**
      * Init function, recieves an optional DIV Object
      * @param moodlerDiv
@@ -11,15 +15,15 @@ window.moodler = {
             moodlerDiv = "moodlerDIV";
         }
         go.licenseKey = "54fe4ee3b01c28c702d95d76423d6cbc5cf07f21de8349a00a5042a3b95c6e172099bc2a01d68dc986ea5efa4e2dc8d8dc96397d914a0c3aee38d7d843eb81fdb53174b2440e128ca75420c691ae2ca2f87f23fb91e076a68f28d8f4b9a8c0985dbbf28741ca08b87b7d55370677ab19e2f98b7afd509e1a3f659db5eaeffa19fc6c25d49ff6478bee5977c1bbf2a3";
-        var $go = go.GraphObject.make;
-        var diagram = $go(go.Diagram, moodlerDiv, {
+        this._go = go.GraphObject.make;
+        this._diagram = this._go(go.Diagram, moodlerDiv, {
             //initialContentAlignment: go.Spot.Center, // center Diagram contents
             padding: new go.Margin(75, 5, 5, 5),
-            "undoManager.isEnabled": true // enable Ctrl-Z to undo and Ctrl-Y to redo
+            "undoManager.isEnabled": true, // enable Ctrl-Z to undo and Ctrl-Y to redo
+            model: new go.GraphLinksModel()
         });
-        diagram.model = new go.GraphLinksModel();
-        window.PIXELRATIO = diagram.computePixelRatio();
-        setupTemplates($go,diagram);
+        window.PIXELRATIO = this._diagram.computePixelRatio();
+        setupTemplates(this._go, this._diagram);
     },
 
     /**
@@ -29,23 +33,28 @@ window.moodler = {
      * @param y ordinate of the point where the entity is to be added to the diagram
      */
     addEntity: function (entityData, x, y) {
-        var name = "E-" + Math.round(Math.random() * 100);
-        diagram.startTransaction("Add Entity " + name);
-        diagram.model.addNodeData({
-            key: name,
-            location: new go.Point(x, y),
+
+        this._diagram.startTransaction("Add Entity " + entityData.name);
+        this._diagram.model.addNodeData({
+            key: entityData.entityName,
+            entityName: entityData.entityName,
+            location: new go.Point(parseFloat(x), parseFloat(y)),
+            properties: entityData.properties,
             category: "entity"
         });
-        diagram.commitTransaction("Add Entity " + name);
-        moodler.editEntity(name, entityData);
+        this._diagram.commitTransaction("Add Entity " + name);
     },
 
     /**
      * Retrieves a list of all Entities in the current model
+     * @filters array of ids to be excluded from the list, if the array is empty or filter is not set, no filtering will be done
      */
-    getEntityList: function () {
-        diagram.model.nodeDataArray.filter(function (nodeData) {
-            return nodeData.category === "entity"
+    getEntityList: function (filters) {
+        return this._diagram.model.nodeDataArray.filter(function (nodeData) {
+            var retVal = nodeData.category === "entity";
+            if (typeof  filters !== "undefined" && Array.isArray(filters))
+                retVal = retVal && (filters.indexOf(nodeData.key) === -1);
+            return retVal;
         })
     },
 
@@ -55,25 +64,18 @@ window.moodler = {
      * @param id
      * @return Entity
      */
-    getEntityData: function(id){
-      return diagram.model.findNodeDataForKey(id);
+    getEntityData: function (id) {
+        return this._diagram.model.findNodeDataForKey(id);
     },
 
-    editEntity: function (id, entityData) {
-        var node = diagram.model.findNodeDataForKey(id);
+    deleteEntity: function (id) {
+        this._deleteNode(id);
+    },
 
-        if (node === null)
-            throw new Error("Canot edit non-existent node " + id);
-
-        if (diagram.model.findNodeDataForKey(entityData.name) !== null)
-            throw new Error("An Entity with this name already exists");
-
-        var initialNodeName = node.key;
-        diagram.startTransaction("Editing node " + initialNodeName);
-        diagram.model.setKeyForNodeData(node, entityData.name);
-        diagram.model.setDataProperty(node, "entityName", entityData.name);
-        diagram.model.setDataProperty(node, "properties", entityData.properties);
-        diagram.commitTransaction("Editing node " + initialNodeName);
+    _deleteNode: function (id) {
+        this._diagram.startTransaction("Remove node " + id);
+        this._diagram.removeNodeData(this._diagram.model.findNodeDataForKey(id));
+        this._diagram.commitTransaction("Remove node " + id);
     },
 
     /**
@@ -94,21 +96,21 @@ window.moodler = {
     addRelationship: function (linkData, x, y) {
 
         var relName = "R_" + linkData.name;
-        if (diagram.model.findNodeDataForKey(relName) !== null)
+        if (this._diagram.model.findNodeDataForKey(relName) !== null)
             throw new Error("An Relationship with this name already exists");
 
-        diagram.startTransaction("Add Relationship " + relName);
+        this._diagram.startTransaction("Add Relationship " + relName);
 
         //Adding Diamond
-        diagram.model.addNodeData({
+        this._diagram.model.addNodeData({
             key: relName,
-            location: new go.Point(x, y),
+            location: new go.Point(parseFloat(x), parseFloat(y)),
             relationshipName: linkData.name,
             category: "relationshipDiamond"
         });
 
         //Adding Source Link
-        diagram.model.addLinkData({
+        this._diagram.model.addLinkData({
             from: linkData.source,
             to: relName,
             role: linkData.sourceRole,
@@ -117,7 +119,7 @@ window.moodler = {
         });
 
         //Adding Target Link
-        diagram.model.addLinkData({
+        this._diagram.model.addLinkData({
             from: linkData.target,
             to: relName,
             role: linkData.targetRole,
@@ -125,21 +127,21 @@ window.moodler = {
             category: "relationshipLine"
         });
 
-        diagram.commitTransaction("Add Relationship " + relName);
+        this._diagram.commitTransaction("Add Relationship " + relName);
     },
 
-    getRelationshipData: function(id){
-        var node = diagram.findNodeForKey(id);
+    getRelationshipData: function (id) {
+        var node = this._diagram.findNodeForKey(id);
         var data = node.data;
         var links = node.findLinksConnected();
-        for(var i=0;i<2;i++){
+        for (var i = 0; i < 2; i++) {
             var link = links[i].data;
-            if(i === 0){
+            if (i === 0) {
                 data.source = link.from;
                 data.sourceMultiplicity = link.multiplicity;
                 data.sourceRole = link.role;
             }
-            else{
+            else {
                 data.target = link.from;
                 data.targetMultiplicity = link.multiplicity;
                 data.targetRole = link.role;
@@ -148,15 +150,15 @@ window.moodler = {
         return data;
     },
 
-    deleteRelationship: function(id){
-        diagram.removeNodeData(diagram.model.findNodeDataForKey(id));
+    deleteRelationship: function (id) {
+        this._deleteNode(id);
     },
 
     /**
      * Adds a Gen-Spec Relatonship between two or more entities
      * @param gsData data of the GS Relationship. it is an Object with the following properties
-     *              parent: go.Node <-- Node of the parent Entity
-     *              children: go.Node[], <--Array of child Entity nodes
+     *              parent: <-- id of the parent Entity
+     *              children:  <--Array of child Entity node ids
      *              isPartial: boolean,
      *              isDisjoint: boolean
      *
@@ -165,24 +167,24 @@ window.moodler = {
      */
     addGeneralizationSpecialization: function (gsData, x, y) {
 
-        var relName = "GS_" + gsData.parent.data.name;
-        if (diagram.model.findNodeDataForKey(relName) !== null)
+        var relName = "GS_" + gsData.parent;
+
+        if (this._diagram.model.findNodeDataForKey(relName) !== null)
             throw new Error("A Gen/Spec for the parent already exists.");
 
-        diagram.startTransaction("Add Gen/Spec " + relName);
+        this._diagram.startTransaction("Add Gen/Spec " + relName);
 
         //adding Circle
-        diagram.model.addNodeData({
+        this._diagram.model.addNodeData({
             key: relName,
-            location: new go.Point(x, y),
+            location: new go.Point(parseFloat(x), parseFloat(y)),
             exclusiveness: gsData.isDisjoint ? "d" : "o",
             category: "generalizationSpecializationCircle"
         });
 
         //adding gneralization line
-        diagram.model.addLinkData({
-            key: relName + "_Gen",
-            from: gsData.parent.data.entityName,
+        this._diagram.model.addLinkData({
+            from: gsData.parent,
             to: relName,
             category: gsData.isPartial ? "partialGeneralizationLine" : "totalGeneralizationLine"
         });
@@ -190,17 +192,53 @@ window.moodler = {
         // add target lines
         for (var i = 0; i < gsData.children.length; i++) {
             var child = gsData.children[i];
-            diagram.model.addLinkData({
-                key: relName + "_Spe+" + child.data.entityName,
-                from: child.data.entityName,
+            this._diagram.model.addLinkData({
+                from: child,
                 to: relName,
                 category: "specializationLine"
             });
 
         }
-        diagram.commitTransaction("Add Gen/Spec " + relName);
+        this._diagram.commitTransaction("Add Gen/Spec " + relName);
+    },
+
+    getGeneralizationSpecializationData: function (id) {
+        var node = this._diagram.findNodeForKey(id);
+        var data = node.data;
+        var links = node.findLinksConnected();
+        var subTypes = [];
+
+        for (var i = 0; i < links.length; i++) {
+            var linkData = links[i].data;
+            if (linkData.category === "specializationLine")
+                subTypes.push(linkData);
+            else
+                data.parent = linkData;
+        }
+
+        return data;
+    },
+
+    deleteGeneralizationSpecialization: function (id) {
+        this._deleteNode(id);
+    },
+
+    toJSON: function () {
+        var json = this._diagram.model.toJSON();
+        return json;
+    },
+
+    fromJSON: function (jsonData) {
+        this._diagram.model = go.Model.fromJson(jsonData);
+    },
+
+    toPNG: function () {
+        var png = this._diagram.makeImageData({
+            scale: 1
+        });
+
+        return png.substr(22);
     }
-
-
-};
-//#sourceURL=js/moodler/moodler.js
+}
+;
+//# sourceURL=moodler.js

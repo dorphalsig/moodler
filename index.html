@@ -1,122 +1,276 @@
 <!DOCTYPE html>
-<html lang="en" manifest="manifest.appcache">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-
-
-    <title>Moodler 1.5</title>
-    <link rel="stylesheet" href="css/moodler.css">
+    <title>Moodler φ</title>
+    <link href="css/moodler.css" rel="stylesheet"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <!-- <script src="./src/moodler_bootstrap.js" type="application/javascript"></script> -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gojs/1.7.8/go-debug.js"></script>
-    <script src="src/templates/templates.js"></script>
-    <script src="src/moodler/moodler.js"></script>
-    <script>
-
-        function setupforms() {
-
-        }
-
-        function showEntityForm(inputEvent, node) {
-            document.location = "#modal-entities"; //open entities form
-            console.log("blah");
-        }
-
-
-        $(function () {
-            moodler.init("moodler");
-            var accessoryEntity = {
-                name: "Accessory",
-                properties: [{
-                    propertyName: "type",
-                    propertyType: "String"
-                }, {
-                    propertyName: "Description",
-                    propertyType: "String"
-                }]
-            };
-            var phoneEntity = {
-                name: "Phone",
-                properties: [{
-                    propertyName: "brand",
-                    propertyType: "String"
-                }, {
-                    propertyName: "price",
-                    propertyType: "Decimal"
-                }]
-            };
-            moodler.addEntity(accessoryEntity, 0, 0);
-            moodler.addEntity(phoneEntity, 500, 75);
-
-            var linkData = {
-                source: diagram.findNodeForKey("Phone"),
-                target: diagram.findNodeForKey("Accessory"),
-                name: "contains",
-                sourceRole: "KK",
-                targetRole: "pp",
-                sourceMultiplicity: "1..*",
-                targetMultiplicity: "1..*"
-            };
-            moodler.addRelationship(linkData, 350, 0);
-
-            var personEntity = {
-                name: "Person",
-                properties: [{propertyName: "name", propertyType: "String"},
-                    {propertyName: "lastName", propertyType: "String"},
-                    {propertyName: "email", propertyType: "String"},
-                    {propertyName: "dateOfBirth", propertyType: "Date"}
-                ]
-            };
-            var childEntity = {
-                name: "Child",
-                properties: [{propertyName: "twitch", propertyType: "String"},
-                    {propertyName: "likesDisneyFilms", propertyType: "boolean"},
-                    {propertyName: "likesVegetables", propertyType: "boolean"}
-                ]
-            };
-            var adultEntity = {
-                name: "Adult",
-                properties: [{propertyName: "last.fm", propertyType: "String"},
-                    {propertyName: "usesSpotify", propertyType: "boolean"},
-                    {propertyName: "likestoCook", propertyType: "boolean"}
-                ]
-            };
-            moodler.addEntity(personEntity, 150, 50);
-            moodler.addEntity(childEntity, 0, 300);
-            moodler.addEntity(adultEntity, 250, 300);
-
-            var gsData = {
-                parent: diagram.findNodeForKey("Person"),
-                children: [diagram.findNodeForKey("Child"), diagram.findNodeForKey("Adult")],
-                isPartial: false,
-                isDisjoint: true
-            };
-            moodler.addGeneralizationSpecialization(gsData, 200, 200)
-
-
-        })
-
-    </script>
-    <style>
-    </style>
+    <script src="js/moodler_bootstrap.js"></script>
 </head>
 <body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-1"  id="menu">
+                <div id="file">
+                    <i class="fa fa-floppy-o" aria-hidden="true" id="save" title="Save"></i>
+                    <i class="fa fa-folder-open" aria-hidden="true" id="load" title="Load"></i>
+                    <i class="fa fa-picture-o" aria-hidden="true" id="export" title="Export as Image"></i>
+                    <input type="file" class="hidden" id="loadFile">
+                </div>
+                <div>
+                    <img src="images/entity.png" id="entity" draggable="true"/> <br />
+                    <img src="images/relationship.png" id="relationship" draggable="true"/><br />
+                    <img src="images/generalizationSpecialization.png" id="inheritance" draggable="true"/>
+                </div>
 
-<div class="container">
-    <div class="menu">
-        <img class="action" id="load" src="images/open.png"/>
-        <img class="action" id="save" src="images/save.png"/>
-        <img class="action" id="print" src="images/printer.png"/>
-        <input id="fileOpen" type="file" name="fileOpen" style="display: none;"/>
-        <hr/>
-        <p>&nbsp;</p>
-        <img class="menuItem draggable" id="entity" src="images/entity.png"/><br/>
-        <img class="menuItem draggable" id="relationship" src="images/relationship.png"/><br/>
-        <img class="menuItem draggable" id="generalizationSpecialization"
-             src="images/generalizationSpecialization.png"/><br/>
-    </div>
-    <div id="moodler">
+        </div>
+        <div class="col-sm-11" id="moodler">
+        </div>
     </div>
 </div>
+
+
+<!-- Modals -->
+<div class="modal fade" id="entity-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 class="modal-title">Entitätstyp Hinzufügen/Bearbeiten</h3>
+                <hr/>
+            </div>
+            <div class="modal-body">
+                <form id="entityForm">
+                    <input type="text" id="entityId" class="hidden">
+                    <input type="text" id="entityX" class="hidden">
+                    <input type="text" id="entityY" class="hidden">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group label-floating">
+                                <label class="control-label" for="entityName">Name des Entitätstyp</label>
+                                <input class="form-control" id="entityName" type="text" pattern="\w{3,}" required/>
+                                <p class="help-block">
+                                    <span class="label label-info">Pflichtfeld - Mindestelänge: 3</span> Nur Buchstabe,
+                                    Ziffern und &quot;_&quot; sind erlaubt.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row cloneable">
+                        <div class="col-sm-7">
+                            <div class="label-floating form-group">
+                                <label class="control-label" for="attributeName">Att. Name</label>
+                                <input pattern="\w{3,}" id="attributeName" required class="form-control" type="text">
+                                <p class="help-block">
+                                    <span class="label label-info">Pflichtfeld - Mindestelänge: 3</span> Nur Buchstabe,
+                                    Ziffern und &quot;_&quot; sind erlaubt.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="label-floating form-group">
+                                <label for="attributeType" class="control-label">At. Typ</label>
+                                <select id="attributeType" class="form-control" required title="Pflichtfeld">
+                                    <option></option>
+                                    <option value="string">string</option>
+                                    <option value="int">int</option>
+                                    <option value="float">float</option>
+                                    <option value="double">double</option>
+                                    <option value="bool">bool</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="label-floating form-group">
+                                <i class="material-icons add">add</i>
+                                <i class="material-icons remove hidden">remove</i>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                <button type="button" class="btn btn-primary">Fortfahren</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="relationship-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 class="modal-title">Beziehungstyp Hinzufügen/Bearbeiten</h3>
+                <hr/>
+            </div>
+            <div class="modal-body">
+                <form id="relationshipForm">
+                    <input type="hidden" id="relationshipId" value=""/>
+                    <input type="hidden" id="relationshipX">
+                    <input type="hidden" id="relationshipY">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group label-floating">
+                                <label class="control-label" for="relationshipName">Name des Beziehungstyp</label>
+                                <input pattern="\w{3,}" required id="relationshipName" class="form-control" type="text">
+                                <p class="help-block">
+                                    <span class="small"><i class="material-icons text-info">info</i></span>Pflichtfeld -
+                                    Mindestelänge: 3 - Alphanum.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-12 form-group">
+                                    <h4>1. Entitätstyp</h4>
+                                    <hr/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group label-floating">
+                                                <label for="entity1" class="control-label">Entitätstyp Wählen</label>
+                                        <select id="entity1" class="form-control" required>
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <div class="form-group label-floating">
+                                        <label class="control-label" for="role1">Rolle</label>
+                                        <input pattern="\w{3,}" id="role1" class="form-control" type="text" required>
+                                        <p class="help-block">
+                                            <span class="small"><i class="material-icons text-info">info</i></span>Pflichtfeld
+                                            - Mindestelänge: 3 - Alphanum.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group label-floating">
+                                        <label class="control-label" for="cardinality1">Kardin.</label>
+                                        <input pattern="[\d+|\*],[\d+|\*]" id="cardinality1" class="form-control"
+                                               type="text" required>
+                                        <p class="help-block">
+                                            <span class="small"><i class="material-icons text-info">info</i></span>1,*
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-12 form-group">
+                                    <h4>2. Entitätstyp</h4>
+                                    <hr/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group label-floating">
+                                        <label for="entity2" class="control-label">Entitätstyp Wählen</label>
+                                        <select id="entity2" class="form-control" required>
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <div class="form-group label-floating">
+                                        <label class="control-label" for="role2">Rolle</label>
+                                        <input pattern="\w{3,}" required id="role2" class="form-control" type="text">
+                                        <p class="help-block">
+                                            <span class="small"><i class="material-icons text-info">info</i></span>Pflichtfeld
+                                            - Mindestelänge: 3 - Alphanum.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group label-floating">
+                                        <label class="control-label" for="cardinality2">Kardin.</label>
+                                        <input pattern="[\d+|\*],[\d+|\*]" id="cardinality2" class="form-control"
+                                               type="text" required>
+                                        <p class="help-block">
+                                            <span class="small"><i class="material-icons text-info">info</i></span>1,*
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                <button type="button" class="btn btn-primary">Fortfahren</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="inheritance-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 class="modal-title">Vererbung Hinzufügen/Bearbeiten</h3>
+                <hr/>
+            </div>
+            <div class="modal-body">
+                <form id="inheritanceForm">
+                    <input type="hidden" id="inheritanceId">
+                    <input type="hidden" id="inheritanceX">
+                    <input type="hidden" id="inheritanceY">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group label-floating">
+                                <label for="parent" class="control-label">Ober Entitätstyp</label>
+                                <select id="parent" class="form-control" required>
+                                    <option></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group label-floating">
+                                <label for="children" class="control-label">Unter Entitätstypen</label>
+                                <select id="children" multiple class="form-control" required>
+                                    <option></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4 col-sm-offset-1">
+                            <div class="togglebutton">
+                                <label>
+                                    Total
+                                    <input type="checkbox" id="isPartial" value="true"> Partiell
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-offset-1 col-sm-6    ">
+                            <div class="togglebutton">
+                                <label>
+                                    Überlappend <input type="checkbox" id="isDisjoint"> Disjunkt
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                <button type="button" class="btn btn-primary">Fortfahren</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Modal -->
 </body>
 </html>

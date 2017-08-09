@@ -1,10 +1,10 @@
 "use strict";
 
-function setupTemplates($go,diagram) {
+function setupTemplates($go, diagram) {
 
     var template_entity = $go(go.Node, go.Panel.Vertical, new go.Binding("position", "location"), {
-            doubleClick: function(e, node) {
-                alert(JSON.stringify(node.data))
+            doubleClick: function (e, node) {
+                formHandler.showEntityModal(node.data.location.x, node.data.location.y, node.data.key);
             }
         },
         $go(go.Panel, "Auto", {
@@ -41,20 +41,8 @@ function setupTemplates($go,diagram) {
 
 
     var template_relationshipDiamond = $go(go.Node, go.Panel.Auto, new go.Binding("location", "location"), {
-            linkDisconnected: function(node, link) {
-                var name = node.data.relationshipName;
-                var links = node.linksConnected;
-
-                if (links.count == 0)
-                    return; // there's already another process deleting the node
-
-                diagram.startTransaction("Remove Orphan Link Node " + name);
-
-                //Delete the "orphan" link
-                diagram.model.removeLinkData(links.first());
-
-                diagram.model.removeNodeData(node.data);
-                diagram.commitTransaction("Remove Orphan Link Node " + name);
+            doubleClick: function (e, node) {
+                formHandler.showRelForm(node.data.location.x, node.data.location.y, node.data.key);
             }
         },
         $go(go.Shape, "Diamond", {
@@ -68,7 +56,11 @@ function setupTemplates($go,diagram) {
         }, new go.Binding("text", "relationshipName"))
     );
 
-    var template_generalizationSpecializationCircle = $go(go.Node, go.Panel.Auto, new go.Binding("location", "location"),
+    var template_generalizationSpecializationCircle = $go(go.Node, go.Panel.Auto, new go.Binding("location", "location"), {
+            doubleClick: function (e, node) {
+                formHandler.showInheritanceForm(node.data.location.x, node.data.location.y, node.data.key);
+            }
+        },
         $go(go.Shape, "Circle", {
             fill: "white",
             margin: 2,
@@ -78,7 +70,8 @@ function setupTemplates($go,diagram) {
             margin: 2,
             font: "15px sans-serif"
         }, new go.Binding("text", "exclusiveness"))
-    );
+        )
+    ;
 
     var template_relationshipLine = $go(go.Link, {
             routing: go.Link.AvoidsNodes,
@@ -90,11 +83,13 @@ function setupTemplates($go,diagram) {
 
         $go(go.Shape), $go(go.TextBlock, new go.Binding("text", "role"), {
             font: "10px sans-serif",
-            segmentOffset: new go.Point(-15, -15)
+            segmentIndex: 0,
+            segmentOffset: new go.Point(NaN, -10)
+
         }),
         $go(go.TextBlock, new go.Binding("text", "multiplicity"), {
             segmentIndex: 0,
-            segmentOffset: new go.Point(NaN, NaN),
+            segmentOffset: new go.Point(NaN, 10),
             font: "10px sans-serif"
         })
     );
@@ -109,7 +104,7 @@ function setupTemplates($go,diagram) {
         },
         $go(go.Shape),
         $go(go.Shape, {
-            geometryString: "m 8,16 b 90 180 0 -8 8", //"m 4,8 b 90 180 0 -4 4",
+            geometryString: "m 8,16 b 90 180  0 -8  8", //"m 4,8 b 90 180 0 -4 4",
             fill: null,
             //scale: 2,
             segmentOrientation: go.Link.OrientAlong
@@ -154,3 +149,4 @@ function setupTemplates($go,diagram) {
     diagram.linkTemplateMap.add("partialGeneralizationLine", template_partialGeneralizationLine);
     diagram.linkTemplateMap.add("", diagram.linkTemplate);
 }
+//# sourceURL=erd_templates.js
