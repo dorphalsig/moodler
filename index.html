@@ -54,10 +54,10 @@
                         <div class="col-sm-12">
                             <div class="form-group label-floating">
                                 <label class="control-label" for="entityName">Name des Entitätstyp</label>
-                                <input class="form-control" id="entityName" type="text" pattern="\w{3,}" required/>
+                                <input class="form-control" id="entityName" type="text" pattern="\w+}" required/>
                                 <p class="help-block">
-                                    <span class="label label-info">Pflichtfeld - Mindestelänge: 3</span> Nur Buchstabe,
-                                    Ziffern und &quot;_&quot; sind erlaubt.
+                                    <strong>Pflichtfeld</strong>Nur Buchstabe,
+                                    Ziffern oder &quot;_&quot;.
                                 </p>
                             </div>
                         </div>
@@ -66,10 +66,12 @@
                         <div class="col-sm-7">
                             <div class="label-floating form-group">
                                 <label class="control-label" for="attributeName">Att. Name</label>
-                                <input pattern="\w{3,}" id="attributeName" required class="form-control" type="text">
+                                <input pattern="\w+" id="attributeName" required class="form-control" type="text">
                                 <p class="help-block">
-                                    <span class="label label-info">Pflichtfeld - Mindestelänge: 3</span> Nur Buchstabe,
-                                    Ziffern und &quot;_&quot; sind erlaubt.
+                                <p class="help-block">
+                                    <strong>Pflichtfeld</strong>Nur Buchstabe,
+                                    Ziffern oder &quot;_&quot;.
+                                </p>
                                 </p>
                             </div>
                         </div>
@@ -119,10 +121,10 @@
                         <div class="col-sm-12">
                             <div class="form-group label-floating">
                                 <label class="control-label" for="relationshipName">Name des Beziehungstyps</label>
-                                <input pattern="\w{3,}" required id="relationshipName" class="form-control" type="text">
+                                <input pattern="\w+" required id="relationshipName" class="form-control" type="text">
                                 <p class="help-block">
-                                    <span class="small"><i class="material-icons text-info">info</i></span>Pflichtfeld -
-                                    Mindestelänge: 3 - Alphanum.
+                                    <strong>Pflichtfeld</strong>Nur Buchstabe,
+                                    Ziffern oder &quot;_&quot;.
                                 </p>
                             </div>
                         </div>
@@ -149,9 +151,10 @@
                                 <div class="col-sm-8">
                                     <div class="form-group label-floating">
                                         <label class="control-label" for="role1">Rolle</label>
-                                        <input pattern="\w{3,}" id="role1" class="form-control" type="text" required>
+                                        <input pattern="\w+" id="role1" class="form-control" type="text" required>
                                         <p class="help-block">
-                                            <span class="small">Pflichtfeld - Mindestelänge: 3. </span>
+                                            <strong>Pflichtfeld</strong>Nur Buchstabe,
+                                            Ziffern oder &quot;_&quot;.
                                         </p>
                                     </div>
                                 </div>
@@ -188,9 +191,10 @@
                                 <div class="col-sm-8">
                                     <div class="form-group label-floating">
                                         <label class="control-label" for="role2">Rolle</label>
-                                        <input pattern="\w{3,}" required id="role2" class="form-control" type="text">
+                                        <input pattern="\w+" required id="role2" class="form-control" type="text">
                                         <p class="help-block">
-                                            <span class="small">Pflichtfeld - Mindestelänge: 3. </span>
+                                            <strong>Pflichtfeld</strong>Nur Buchstabe,
+                                            Ziffern oder &quot;_&quot;.
                                         </p>
                                     </div>
                                 </div>
