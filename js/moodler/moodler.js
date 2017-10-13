@@ -16,6 +16,9 @@ window.moodler = {
         }
         go.licenseKey = "54fe4ee3b01c28c702d95d76423d6cbc5cf07f21de8349a00a5042a3b95c6e172099bc2a01d68dc986ea5efa4e2dc8d8dc96397d914a0c3aee38d7d843eb81fdb53174b2440e128ca75420c691ae2ca2f87f23fb91e076a68f28d8f4b9a8c0985dbbf28741ca08b87b7d55370677ab19e2f98b7afd509e1a3f659db5eaeffa19fc6c25d49ff6478bee5977c1bbf2a3";
         this._go = go.GraphObject.make;
+        /**
+         * @var {go.Diagram}
+         */
         this._diagram = this._go(go.Diagram, moodlerDiv, {
             //initialContentAlignment: go.Spot.Center, // center Diagram contents
             padding: new go.Margin(75, 5, 5, 5),
@@ -74,7 +77,7 @@ window.moodler = {
 
     _deleteNode: function (id) {
         this._diagram.startTransaction("Remove node " + id);
-        this._diagram.removeNodeData(this._diagram.model.findNodeDataForKey(id));
+        this._diagram.remove(this._diagram.findNodeForKey(id));
         this._diagram.commitTransaction("Remove node " + id);
     },
 
@@ -168,9 +171,11 @@ window.moodler = {
     addGeneralizationSpecialization: function (gsData, x, y) {
 
         var relName = "GS_" + gsData.parent;
+        var node = this._diagram.model.findNodeDataForKey(relName);
 
-        if (this._diagram.model.findNodeDataForKey(relName) !== null)
+        if (node !== null){
             throw new Error("A Gen/Spec for the parent already exists.");
+        }
 
         this._diagram.startTransaction("Add Gen/Spec " + relName);
 

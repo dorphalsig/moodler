@@ -121,8 +121,8 @@ window.formHandler = {
         var y = $("#inheritanceY").val();
 
         var data = {
-            parent: $("#parent").val(),
-            children: $("#children").val(),
+            parent: $("#parent")[0].selectize.getValue(),
+            children: $("#children")[0].selectize.getValue(),
             isPartial: $("#isPartial").val(),
             isDisjoint: $("#isDisjoint").val()
         };
@@ -196,6 +196,7 @@ window.formHandler = {
 
         if (typeof id !== "undefined") {
             var data = moodler.getGeneralizationSpecializationData(id);
+            $("#inheritanceId").val(id);
             $("#parent").val(data.parent);
             $("#children").val(data.children);
 
@@ -221,28 +222,12 @@ window.formHandler = {
     },
 
     saveImage: function () {
-        alert("Die Datei wird Herunterladen. Bitte stellen Sie sicher, dass der Download in Ihnen Browser ist erlaubt.");
-        var date = new Date();
-        var fileName = date.getDate() + "." + date.getMonth() + " - Moodler.png";
-
-        var sliceSize = 512;
-        var byteCharacters = atob(moodler.toPNG());
-        var byteArrays = [];
-
-        for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-            var slice = byteCharacters.slice(offset, offset + sliceSize);
-
-            var byteNumbers = new Array(slice.length);
-            for (var i = 0; i < slice.length; i++) {
-                byteNumbers[i] = slice.charCodeAt(i);
-            }
-
-            var byteArray = new Uint8Array(byteNumbers);
-
-            byteArrays.push(byteArray);
-        }
-        var blob = new Blob(byteArrays, {type: "image/png"});
-        saveAs(blob, fileName);
+        var fileType = "png";
+        var anchor = $("#export");
+        //return this.__download(anchor, data, fileType);
+        var  filename = "FMMLxStudio - "+new Date().toISOString()+"."+fileType;
+        anchor.prop("href", data);
+        anchor.prop("download", filename);
     },
 
     load: function () {

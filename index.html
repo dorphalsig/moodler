@@ -10,18 +10,24 @@
 <body>
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-1"  id="menu">
-                <div id="file">
-                    <i class="fa fa-floppy-o" aria-hidden="true" id="save" title="Save"></i>
-                    <i class="fa fa-folder-open" aria-hidden="true" id="load" title="Load"></i>
-                    <i class="fa fa-picture-o" aria-hidden="true" id="export" title="Export as Image"></i>
-                    <input type="file" class="hidden" id="loadFile">
-                </div>
-                <div>
-                    <img src="images/entity.png" id="entity" draggable="true"/> <br />
-                    <img src="images/relationship.png" id="relationship" draggable="true"/><br />
-                    <img src="images/generalizationSpecialization.png" id="inheritance" draggable="true"/>
-                </div>
+        <div class="col-sm-1" id="menu">
+            <div id="file">
+                <i class="fa fa-floppy-o" aria-hidden="true" id="save" title="Save"></i>
+                <i class="fa fa-folder-open" aria-hidden="true" id="load" title="Load"></i>
+
+
+                <a id="export" href="#">
+                    <i class="fa fa-picture-o" aria-hidden="true" title="Export as Image"></i>
+                </a>
+
+
+                <input type="file" class="hidden" id="loadFile">
+            </div>
+            <div>
+                <img src="images/entity.png" id="entity" draggable="true"/> <br/>
+                <img src="images/relationship.png" id="relationship" draggable="true"/><br/>
+                <img src="images/generalizationSpecialization.png" id="inheritance" draggable="true"/>
+            </div>
 
         </div>
         <div class="col-sm-11" id="moodler">
@@ -36,14 +42,14 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h3 class="modal-title">Entitätstyp Hinzufügen/Bearbeiten</h3>
+                <h3 class="modal-title">Entitätstyp hinzufügen/bearbeiten</h3>
                 <hr/>
             </div>
             <div class="modal-body">
                 <form id="entityForm">
-                    <input type="text" id="entityId" class="hidden">
-                    <input type="text" id="entityX" class="hidden">
-                    <input type="text" id="entityY" class="hidden">
+                    <input type="text" id="entityId" class="hidden"/>
+                    <input type="text" id="entityX" class="hidden"/>
+                    <input type="text" id="entityY" class="hidden"/>
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="form-group label-floating">
@@ -72,11 +78,11 @@
                                 <label for="attributeType" class="control-label">At. Typ</label>
                                 <select id="attributeType" class="form-control" required title="Pflichtfeld">
                                     <option></option>
-                                    <option value="string">string</option>
-                                    <option value="int">int</option>
-                                    <option value="float">float</option>
-                                    <option value="double">double</option>
-                                    <option value="bool">bool</option>
+                                    <option value="String">String</option>
+                                    <option value="Integer">Integer</option>
+                                    <option value="Float">Float</option>
+                                    <option value="Boolean">Boolean</option>
+                                    <option value="Date">Date</option>
                                 </select>
                             </div>
                         </div>
@@ -101,7 +107,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h3 class="modal-title">Beziehungstyp Hinzufügen/Bearbeiten</h3>
+                <h3 class="modal-title">Beziehungstyp hinzufügen/bearbeiten</h3>
                 <hr/>
             </div>
             <div class="modal-body">
@@ -112,7 +118,7 @@
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="form-group label-floating">
-                                <label class="control-label" for="relationshipName">Name des Beziehungstyp</label>
+                                <label class="control-label" for="relationshipName">Name des Beziehungstyps</label>
                                 <input pattern="\w{3,}" required id="relationshipName" class="form-control" type="text">
                                 <p class="help-block">
                                     <span class="small"><i class="material-icons text-info">info</i></span>Pflichtfeld -
@@ -132,7 +138,7 @@
                             <div class="row">
                                 <div class="col-sm-12">
                                     <div class="form-group label-floating">
-                                                <label for="entity1" class="control-label">Entitätstyp Wählen</label>
+                                        <label for="entity1" class="control-label">Entitätstyp wählen</label>
                                         <select id="entity1" class="form-control" required>
                                             <option></option>
                                         </select>
@@ -145,18 +151,17 @@
                                         <label class="control-label" for="role1">Rolle</label>
                                         <input pattern="\w{3,}" id="role1" class="form-control" type="text" required>
                                         <p class="help-block">
-                                            <span class="small"><i class="material-icons text-info">info</i></span>Pflichtfeld
-                                            - Mindestelänge: 3 - Alphanum.
+                                            <span class="small">Pflichtfeld - Mindestelänge: 3. </span>
                                         </p>
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
                                     <div class="form-group label-floating">
-                                        <label class="control-label" for="cardinality1">Kardin.</label>
+                                        <label class="control-label" for="cardinality1">Kardinalität</label>
                                         <input pattern="[\d+|\*],[\d+|\*]" id="cardinality1" class="form-control"
                                                type="text" required>
                                         <p class="help-block">
-                                            <span class="small"><i class="material-icons text-info">info</i></span>1,*
+                                            <span class="small">1,*</span>
                                         </p>
                                     </div>
                                 </div>
@@ -171,8 +176,8 @@
                             </div>
                             <div class="row">
                                 <div class="col-sm-12">
-                                    <div class="form-group label-floating">
-                                        <label for="entity2" class="control-label">Entitätstyp Wählen</label>
+                                    <div class="form-group label-static">
+                                        <label for="entity2" class="control-label">Entitätstyp wählen</label>
                                         <select id="entity2" class="form-control" required>
                                             <option></option>
                                         </select>
@@ -185,18 +190,18 @@
                                         <label class="control-label" for="role2">Rolle</label>
                                         <input pattern="\w{3,}" required id="role2" class="form-control" type="text">
                                         <p class="help-block">
-                                            <span class="small"><i class="material-icons text-info">info</i></span>Pflichtfeld
-                                            - Mindestelänge: 3 - Alphanum.
+                                            <span class="small">Pflichtfeld - Mindestelänge: 3. </span>
                                         </p>
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
+                                    <br/>
                                     <div class="form-group label-floating">
-                                        <label class="control-label" for="cardinality2">Kardin.</label>
+                                        <label class="control-label" for="cardinality2">Kardinalität</label>
                                         <input pattern="[\d+|\*],[\d+|\*]" id="cardinality2" class="form-control"
                                                type="text" required>
                                         <p class="help-block">
-                                            <span class="small"><i class="material-icons text-info">info</i></span>1,*
+                                            <span class="small">1,*</span>
                                         </p>
                                     </div>
                                 </div>
@@ -217,7 +222,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h3 class="modal-title">Vererbung Hinzufügen/Bearbeiten</h3>
+                <h3 class="modal-title">Generalisierungs-/Spezialisierungsbeziehung hinzufügen/bearbeiten</h3>
                 <hr/>
             </div>
             <div class="modal-body">
@@ -227,8 +232,8 @@
                     <input type="hidden" id="inheritanceY">
                     <div class="row">
                         <div class="col-sm-12">
-                            <div class="form-group label-floating">
-                                <label for="parent" class="control-label">Ober Entitätstyp</label>
+                            <div class="form-group label-static">
+                                <label for="parent" class="control-label">Generalisierter Entitätstyp</label>
                                 <select id="parent" class="form-control" required>
                                     <option></option>
                                 </select>
@@ -237,8 +242,8 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-12">
-                            <div class="form-group label-floating">
-                                <label for="children" class="control-label">Unter Entitätstypen</label>
+                            <div class="form-group label-static">
+                                <label for="children" class="control-label">Spezialisierte/r Entitätstyp/en</label>
                                 <select id="children" multiple class="form-control" required>
                                     <option></option>
                                 </select>
@@ -249,15 +254,15 @@
                         <div class="col-sm-4 col-sm-offset-1">
                             <div class="togglebutton">
                                 <label>
-                                    Total
-                                    <input type="checkbox" id="isPartial" value="true"> Partiell
+                                    total
+                                    <input type="checkbox" id="isPartial" value="true"> partiell
                                 </label>
                             </div>
                         </div>
                         <div class="col-sm-offset-1 col-sm-6    ">
                             <div class="togglebutton">
                                 <label>
-                                    Überlappend <input type="checkbox" id="isDisjoint"> Disjunkt
+                                    überlappend <input type="checkbox" id="isDisjoint"> disjunkt
                                 </label>
                             </div>
                         </div>

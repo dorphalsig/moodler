@@ -106,7 +106,7 @@ function setupTemplates($go, diagram) {
         $go(go.Shape, {
             geometryString: "m 8,16 b 90 180  0 -8  8", //"m 4,8 b 90 180 0 -4 4",
             fill: null,
-            //scale: 2,
+            segmentIndex: -1, segmentFraction: 0.5,
             segmentOrientation: go.Link.OrientAlong
         })
     );
