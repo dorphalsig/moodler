@@ -238,11 +238,10 @@ window.moodler = {
     },
 
     toPNG: function () {
-        var png = this._diagram.makeImageData({
+        return this._diagram.makeImageData({
             scale: 1
         });
 
-        return png.substr(22);
     }
 }
 ;
