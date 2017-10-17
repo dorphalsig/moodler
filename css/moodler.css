@@ -6,8 +6,7 @@
 @import url("https://fonts.googleapis.com/css?family=Roboto:300,400,500,700");
 @import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 
-
-body{
+body {
     margin: 0;
 }
 
@@ -45,26 +44,31 @@ body{
     margin-left: 12px;
 }
 
-#file{
+#file {
     margin-top: 15px;
-    border-bottom: 1px solid ;
+    border-bottom: 1px solid;
     margin-bottom: 20px;
     text-align: center;
     padding-bottom: 10px;
 }
 
-#file i{
+#file i {
     font-size: 18px !important;
-    margin-right:15px;
+    margin-right: 15px;
     display: inline-block;
 }
 
-#menu{
+#menu {
     text-align: center;
     border-right: solid 1px black;
 }
 
-#menu img{
+#menu a {
+    decoration: inherit;
+    color: inherit;
+}
+
+#menu img {
     width: 100px;
     margin-bottom: 20px;
     display: inline-block;

@@ -85,7 +85,7 @@ window.formHandler = {
         };
 
         if (id !== "")
-            moodler.deleteEntity(id);
+            data.id = id;
 
         moodler.addEntity(data, x, y);
         modal.modal('hide');
@@ -123,8 +123,8 @@ window.formHandler = {
         var data = {
             parent: $("#parent")[0].selectize.getValue(),
             children: $("#children")[0].selectize.getValue(),
-            isPartial: $("#isPartial").val(),
-            isDisjoint: $("#isDisjoint").val()
+            isPartial: $("#isPartial").prop("checked"),
+            isDisjoint: $("#isDisjoint").prop("checked")
         };
 
         if (id !== "")
@@ -148,14 +148,13 @@ window.formHandler = {
             modal.find("#entityName").val(entity.entityName);
             modal.find("#entityId").val(entityId);
 
-            for (var i = 0; i < entity.properties.length; i++) {
-                var prop = entity.properties[i];
+            entity.properties.forEach(function(prop){
                 var propertyLine = modal.find(".cloneable:last-of-type");
                 propertyLine.find("#attributeName").val(prop.propertyName);
                 propertyLine.find("#attributeType").val(prop.propertyType);
                 propertyLine.find(".add").click()
+            })
 
-            }
 
             modal.find(".cloneable:last-of-type").find(".remove").click();
         }
@@ -169,19 +168,26 @@ window.formHandler = {
         modal.find("form")[0].reset();
         $("#relationshipX").val(x);
         $("#relationshipY").val(y);
+        var entity1 = $("#entity1")[0].selectize;
+        var entity2 = $("#entity2")[0].selectize;
 
-        var options = [];
-        var entities = moodler.getEntityList();
+        entity1.clearOptions();
+        entity2.clearOptions();
+
+        moodler.getEntityList().forEach(function (entity) {
+            entity1.addOption(entity);
+            entity2.addOption(entity);
+        });
 
 
         if (typeof relId !== "undefined") {
             var data = moodler.getRelationshipData(relId);
             $("#relationshipId").val(relId);
             $("#relationshipName").val(data.relationshipName);
-            $("#entity1").val(data.source);
+            entity1.setValue(data.source);
             $("#role1").val(data.sourceRole);
             $("#cardinality1").val(data.sourceMultiplicity);
-            $("#entity2").val(data.target);
+            entity2.setValue(data.target);
             $("#role2").val(data.targetRole);
             $("#cardinality2").val(data.targetMultiplicity);
         }
@@ -193,12 +199,25 @@ window.formHandler = {
         modal.find("form")[0].reset();
         $("#inheritanceX").val(x);
         $("#inheritanceY").val(y);
+        var parentSelect = $("#parent")[0].selectize;
+        var childrenSelect = $("#children")[0].selectize;
+
+        parentSelect.clearOptions();
+        childrenSelect.clearOptions();
+
+        moodler.getEntityList().forEach(function (entity) {
+            parentSelect.addOption(entity);
+            childrenSelect.addOption(entity);
+        });
 
         if (typeof id !== "undefined") {
             var data = moodler.getGeneralizationSpecializationData(id);
             $("#inheritanceId").val(id);
-            $("#parent").val(data.parent);
-            $("#children").val(data.children);
+            parentSelect.setValue(data.superclass, true);
+
+            data.subclasses.forEach(function(subclass){
+                childrenSelect.addItem(subclass, false);
+            })
 
             if (data.isPartial)
                 $("#isPartial").prop("checked", true);
@@ -225,7 +244,7 @@ window.formHandler = {
         var fileType = "png";
         var anchor = $("#export");
         var data = moodler.toPNG();
-        var  filename = "FMMLxStudio - "+new Date().toISOString()+"."+fileType;
+        var filename = "FMMLxStudio - " + new Date().toISOString() + "." + fileType;
         anchor.prop("href", data);
         anchor.prop("download", filename);
     },
@@ -295,11 +314,7 @@ window.formHandler = {
             valueField: 'key',
             labelField: 'entityName',
             searchField: 'entityName',
-            create: false,
-            load: function (query, callback) {
-                var filtered = moodler.getEntityList(query);
-                callback(filtered);
-            }
+            create: false
         };
 
         var multiValue = singleValue;

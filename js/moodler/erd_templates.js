@@ -25,11 +25,12 @@ function setupTemplates($go, diagram) {
             }),
             $go(go.Panel, "Vertical", {
                     margin: 4,
-                    defaultAlignment: go.Spot.Left
+                    alignment: go.Spot.Left
                 },
                 new go.Binding("itemArray", "properties"), {
                     itemTemplate: $go(go.Panel, "Horizontal", {
-                            margin: 0.5
+                            margin: 0.5,
+                            stretch: go.GraphObject.Fill
                         },
                         $go(go.TextBlock, new go.Binding("text", "propertyName")),
                         $go(go.TextBlock, " : "),
@@ -105,8 +106,7 @@ function setupTemplates($go, diagram) {
         $go(go.Shape),
         $go(go.Shape, {
             geometryString: "m 8,16 b 90 180  0 -8  8", //"m 4,8 b 90 180 0 -4 4",
-            fill: null,
-            segmentIndex: -1, segmentFraction: 0.5,
+            segmentIndex: 1, segmentFraction: 0.3,
             segmentOrientation: go.Link.OrientAlong
         })
     );
@@ -149,4 +149,5 @@ function setupTemplates($go, diagram) {
     diagram.linkTemplateMap.add("partialGeneralizationLine", template_partialGeneralizationLine);
     diagram.linkTemplateMap.add("", diagram.linkTemplate);
 }
+
 //# sourceURL=erd_templates.js

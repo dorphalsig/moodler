@@ -37,14 +37,23 @@ window.moodler = {
      */
     addEntity: function (entityData, x, y) {
 
-        this._diagram.startTransaction("Add Entity " + entityData.name);
-        this._diagram.model.addNodeData({
-            key: entityData.entityName,
-            entityName: entityData.entityName,
-            location: new go.Point(parseFloat(x), parseFloat(y)),
-            properties: entityData.properties,
-            category: "entity"
-        });
+        this._diagram.startTransaction("Add/Edit Entity " + entityData.name);
+
+        if (entityData.id !== undefined) {
+            var entity = this._diagram.model.findNodeDataForKey(entityData.id);
+            this._diagram.model.setDataProperty(entity, "properties", entityData.properties)
+            this._diagram.model.setDataProperty(entity, "entityName", entityData.entityName)
+        }
+        else {
+            this._diagram.model.addNodeData({
+                key: entityData.entityName,
+                entityName: entityData.entityName,
+                location: new go.Point(parseFloat(x), parseFloat(y)),
+                properties: entityData.properties,
+                category: "entity"
+            });
+
+        }
         this._diagram.commitTransaction("Add Entity " + name);
     },
 
@@ -137,25 +146,26 @@ window.moodler = {
         var node = this._diagram.findNodeForKey(id);
         var data = node.data;
         var links = node.findLinksConnected();
-        for (var i = 0; i < 2; i++) {
-            var link = links[i].data;
-            if (i === 0) {
-                data.source = link.from;
-                data.sourceMultiplicity = link.multiplicity;
-                data.sourceRole = link.role;
-            }
-            else {
-                data.target = link.from;
-                data.targetMultiplicity = link.multiplicity;
-                data.targetRole = link.role;
-            }
-        }
+
+
+        var link = links.first().data;
+        data.source = link.from;
+        data.sourceMultiplicity = link.multiplicity;
+        data.sourceRole = link.role;
+
+        links.next();
+        link = links.value.data;
+        data.target = link.from;
+        data.targetMultiplicity = link.multiplicity;
+        data.targetRole = link.role;
+
         return data;
     },
 
     deleteRelationship: function (id) {
         this._deleteNode(id);
     },
+
 
     /**
      * Adds a Gen-Spec Relatonship between two or more entities
@@ -173,7 +183,7 @@ window.moodler = {
         var relName = "GS_" + gsData.parent;
         var node = this._diagram.model.findNodeDataForKey(relName);
 
-        if (node !== null){
+        if (node !== null) {
             throw new Error("A Gen/Spec for the parent already exists.");
         }
 
@@ -211,14 +221,17 @@ window.moodler = {
         var node = this._diagram.findNodeForKey(id);
         var data = node.data;
         var links = node.findLinksConnected();
-        var subTypes = [];
-
-        for (var i = 0; i < links.length; i++) {
-            var linkData = links[i].data;
+        data.subclasses = [];
+        data.isDisjoint =  node.data.exclusiveness.toUpperCase() === "D";
+        while(links.next()) {
+            var linkData = links.value;
             if (linkData.category === "specializationLine")
-                subTypes.push(linkData);
-            else
-                data.parent = linkData;
+                data.subclasses.push(linkData.data.from);
+            else{
+                data.superclass = linkData.data.from;
+                data.isPartial = linkData.category === "partialGeneralizationLine";
+            }
+
         }
 
         return data;
