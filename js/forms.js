@@ -244,7 +244,7 @@ window.formHandler = {
         var fileType = "png";
         var anchor = $("#export");
         var data = moodler.toPNG();
-        var filename = "FMMLxStudio - " + new Date().toISOString() + "." + fileType;
+        var filename = "Moodler - " + new Date().toISOString() + "." + fileType;
         anchor.prop("href", data);
         anchor.prop("download", filename);
     },
