@@ -145,13 +145,13 @@ window.formHandler = {
 
         if (typeof entityId !== "undefined") {
             var entity = moodler.getEntityData(entityId);
-            modal.find("#entityName").val(entity.entityName);
-            modal.find("#entityId").val(entityId);
+            modal.find("#entityName").val(entity.entityName).change();
+            modal.find("#entityId").val(entityId).change();
 
             entity.properties.forEach(function(prop){
                 var propertyLine = modal.find(".cloneable:last-of-type");
-                propertyLine.find("#attributeName").val(prop.propertyName);
-                propertyLine.find("#attributeType").val(prop.propertyType);
+                propertyLine.find("#attributeName").val(prop.propertyName).change();
+                propertyLine.find("#attributeType").val(prop.propertyType).change();
                 propertyLine.find(".add").click()
             })
 
@@ -182,13 +182,13 @@ window.formHandler = {
 
         if (typeof relId !== "undefined") {
             var data = moodler.getRelationshipData(relId);
-            $("#relationshipId").val(relId);
+            $("#relationshipId").val(relId).change();
             $("#relationshipName").val(data.relationshipName);
-            entity1.setValue(data.source);
-            $("#role1").val(data.sourceRole);
+            entity1.setValue(data.source).change();
+            $("#role1").val(data.sourceRole).change();
             $("#cardinality1").val(data.sourceMultiplicity);
             entity2.setValue(data.target);
-            $("#role2").val(data.targetRole);
+            $("#role2").val(data.targetRole).change();
             $("#cardinality2").val(data.targetMultiplicity);
         }
         modal.modal();
@@ -236,8 +236,6 @@ window.formHandler = {
         var fileName = date.getDate() + "." + date.getMonth() + "_" + date.getHours() + "." + date.getMinutes() + " - Moodler.json";
         var blob = new Blob([json], {type: "text/plain;charset=utf-8"});
         saveAs(blob, fileName);
-
-
     },
 
     saveImage: function () {
